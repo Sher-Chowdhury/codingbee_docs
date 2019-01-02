@@ -33,5 +33,5 @@ $ ll | grep docker
 
 ### References
 
-[Add Docker autocompletion in your shell](https://webascrazy.net/2017/02/02/add-docker-autocompletion-in-your-shell/)
+[Add Docker autocompletion in your shell](https://webascrazy.net/2017/02/02/add-docker-autocompletion-in-your-shell/){:rel=nofollow}
 [Installing Docker Bash completion](https://docs.docker.com/docker-for-mac/#installing-bash-completion)
