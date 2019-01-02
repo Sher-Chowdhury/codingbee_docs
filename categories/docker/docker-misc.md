@@ -109,7 +109,6 @@ For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 ```
 
-
 To view a list of docker images currently stored locally, do:
 
 ```bash
@@ -144,8 +143,8 @@ docker container stop $(docker container ls --all --quiet)
 docker container rm $(docker container ls --all --quiet)
 docker image rm $(docker image ls --quiet)
 ```
-This effectively does a factory reset of your docker server
 
+This effectively does a factory reset of your docker server
 
 Here's another hello world example:
 
@@ -183,12 +182,12 @@ hello world
 
 Here's another example, but this time running a long running process:
 
-```bash 
+```bash
 docker run --detach httpd
 ```
 
 This downloads the official apache web server docker image, and starts a container with it. I needed to use the --detach flag
-otherwise the docker run command just hangs. 
+otherwise the docker run command just hangs.
 
 ```bash
 CONTAINER ID        IMAGE               COMMAND              CREATED             STATUS              PORTS               NAMES
@@ -206,7 +205,6 @@ AH00558: httpd: Could not reliably determine the server's fully qualified domain
 ```
 
 Now let's run it with port forwarding enabled:
-
 
 ```bash
 docker run --detach -p 80:80 httpd
@@ -230,11 +228,13 @@ Here's how to access a bash terminal inside a container:
 ```bash
 docker container run -it centos:latest /bin/bash
 ```
--i means interactive. and -t means tty terminal mode. 
 
+-i means interactive. and -t means tty terminal mode.
 
+## Build Docker images
 
+You need to run the following command while inside a directory that contains a file called 'Dockerfile'
 
-
-
-
+```bash
+docker build . --tag {image_name}
+```
