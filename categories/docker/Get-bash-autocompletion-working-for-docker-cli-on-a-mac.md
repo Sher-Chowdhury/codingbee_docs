@@ -1,3 +1,5 @@
+# Get bash autocompletion working for docker cli on a mac
+
 First install the following formulas:
 
 ```bash
@@ -29,12 +31,7 @@ $ ll | grep docker
 
 ```
 
-References:
-<a href="https://webascrazy.net/2017/02/02/add-docker-autocompletion-in-your-shell/" rel="nofollow">https://webascrazy.net/2017/02/02/add-docker-autocompletion-in-your-shell/</a>
-<a href="https://docs.docker.com/docker-for-mac/#installing-bash-completion" rel="nofollow">https://docs.docker.com/docker-for-mac/#installing-bash-completion</a>
+### References:
 
-
-
-
-
-Then restart your terminal
+[Add Docker autocompletion in your shell](https://webascrazy.net/2017/02/02/add-docker-autocompletion-in-your-shell/)
+[Installing Docker Bash completion](https://docs.docker.com/docker-for-mac/#installing-bash-completion)
