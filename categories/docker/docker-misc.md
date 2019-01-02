@@ -225,3 +225,16 @@ $ curl http://10.0.150.33
 <html><body><h1>It works!</h1></body></html>
 ```
 
+Here's how to access a bash terminal inside a container:
+
+```bash
+docker container run -it centos:latest /bin/bash
+```
+-i means interactive. and -t means tty terminal mode. 
+
+
+
+
+
+
+
