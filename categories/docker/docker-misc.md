@@ -187,6 +187,41 @@ Here's another example, but this time running a long running process:
 docker run --detach httpd
 ```
 
-This downla
+This downloads the official apache web server docker image, and starts a container with it. I needed to use the --detach flag
+otherwise the docker run command just hangs. 
 
+```bash
+CONTAINER ID        IMAGE               COMMAND              CREATED             STATUS              PORTS               NAMES
+2e6cbf5f7dd1        httpd               "httpd-foreground"   7 minutes ago       Up 7 minutes        80/tcp              pensive_mcclintock
+```
+
+This shows that it is listening on port 80, however that's access port 80 from inside the Docker container. To access it from the host machine, you need to setup port forwarding, which we'll cover later. To view what's happenign inside the containter run:
+
+```bash
+$ docker logs 2e6cbf5f7dd1
+AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using 172.17.0.2. Set the 'ServerName' directive globally to suppress this message
+AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using 172.17.0.2. Set the 'ServerName' directive globally to suppress this message
+[Wed Jan 02 20:57:15.465623 2019] [mpm_event:notice] [pid 1:tid 140265675433152] AH00489: Apache/2.4.37 (Unix) configured -- resuming normal operations
+[Wed Jan 02 20:57:15.465864 2019] [core:notice] [pid 1:tid 140265675433152] AH00094: Command line: 'httpd -D FOREGROUND'
+```
+
+Now let's run it with port forwarding enabled:
+
+
+```bash
+docker run --detach -p 80:80 httpd
+```
+
+Now you tail the logs:
+
+```bash
+docker logs --follow {container-id}
+```
+
+While following the logs, you should be able to view new entries when accessing the web server:
+
+```bash
+$ curl http://10.0.150.33
+<html><body><h1>It works!</h1></body></html>
+```
 
