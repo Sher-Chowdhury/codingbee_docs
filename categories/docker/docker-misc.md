@@ -203,9 +203,16 @@ This downloads the official apache web server docker image, and starts a contain
 otherwise the docker run command just hangs.
 
 ```bash
-CONTAINER ID        IMAGE               COMMAND              CREATED             STATUS              PORTS               NAMES
-2e6cbf5f7dd1        httpd               "httpd-foreground"   7 minutes ago       Up 7 minutes        80/tcp              pensive_mcclintock
+$ docker container ls
+CONTAINER ID        IMAGE               COMMAND              CREATED              STATUS              PORTS                NAMES
+2200dbbd2297        httpd               "httpd-foreground"   About a minute ago   Up About a minute   0.0.0.0:80->80/tcp   practical_napier
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND              CREATED              STATUS              PORTS                NAMES
+2200dbbd2297        httpd               "httpd-foreground"   About a minute ago   Up About a minute   0.0.0.0:80->80/tcp   practical_napier
 ```
+
+
+
 
 This shows that it is listening on port 80, however that's access port 80 from inside the Docker container. To access it from the host machine, you need to setup port forwarding, which we'll cover later. To view what's happenign inside the containter run:
 
@@ -222,6 +229,15 @@ Now let's run it with port forwarding enabled:
 ```bash
 docker run --detach -p 80:80 httpd
 ```
+
+Now portwording should now be active, as indicated in the ports column:
+
+```bash
+$ docker container ls
+CONTAINER ID        IMAGE               COMMAND              CREATED              STATUS              PORTS                NAMES
+2200dbbd2297        httpd               "httpd-foreground"   About a minute ago   Up About a minute   0.0.0.0:80->80/tcp   practical_napier
+```
+
 
 Now you tail the logs:
 
