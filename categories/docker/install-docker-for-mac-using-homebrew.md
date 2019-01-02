@@ -27,6 +27,6 @@ $ kubectl version --client
 Client Version: version.Info{Major:"1", Minor:"6", GitVersion:"v1.6.2", GitCommit:"477efc3cbe6a7effca06bd1452fa356e2201e1ee", GitTreeState:"clean", BuildDate:"2017-04-19T20:33:11Z", GoVersion:"go1.7.5", Compiler:"gc", Platform:"darwin/amd64"}
 ```
 
-## Reference
+#### Reference
 
 [Docker for Mac install](https://docs.docker.com/docker-for-mac/install)
