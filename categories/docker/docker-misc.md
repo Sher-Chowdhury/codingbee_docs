@@ -132,9 +132,17 @@ docker container ls --all
 to stop and delete a container do:
 
 ```bash
-docker container stop {container-name}
+docker container stop {container-name}  
 docker container rm {container-name}
 ```
+
+The stop command tries to stop the container gracefully. If after 10 seconds it's still running then docker will issue the kill command, which stops the container by force:
+
+```bash
+docker container kill {container-name}  
+```
+
+
 
 To delete all containers and images:
 
@@ -144,7 +152,11 @@ docker container rm $(docker container ls --all --quiet)
 docker image rm $(docker image ls --quiet)
 ```
 
-This effectively does a factory reset of your docker server
+This effectively does a factory reset of your docker server. Here's another way to delete all containers+images and start again:
+
+```bash
+docker system prune
+```
 
 Here's another hello world example:
 
@@ -201,6 +213,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 As you can see, it is just /bin/bash. This command is the last command on the [CentOS 7 official Dockerfile](https://hub.docker.com/_/centos/)
 
+Once you do a command override, then that override stays intact with that container, even if you stop and start it.
 
 
 Here's another example, but this time running a long running process:
@@ -268,8 +281,26 @@ Here's how to access a bash terminal inside a container:
 docker container run -it centos:latest /bin/bash
 ```
 
--i means interactive. and -t means tty terminal mode.
+-i means interactive, so that you can find commands straight into the docker container
+-t means tty terminal mode, which basically adds some nice formatting to the terminal running inside your docker container. -t is optional, and if you leave it out, then it just means that your terminal output is a little hard to follow, e.g.:
 
+```bash
+$ docker container run -i centos:latest /bin/bash
+echo hello
+hello
+ls -l
+total 12
+-rw-r--r--.   1 root root 12076 Dec  5 01:37 anaconda-post.log
+lrwxrwxrwx.   1 root root     7 Dec  5 01:36 bin -> usr/bin
+drwxr-xr-x.   5 root root   340 Jan  2 23:30 dev
+.
+.
+...etc.
+```
+
+## running interactive CLIs inside docker containers
+
+There are some cli that start up their own interactive sessions, e.g. msyql, python, irb,...etc. These can be run inside docker containers. Just make sure that the default command is the command that starts up the cli. 
 
 
 
