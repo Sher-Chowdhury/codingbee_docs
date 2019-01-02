@@ -1,0 +1,192 @@
+# Docker notes
+
+To get docker version info:
+
+```bash
+$ docker version
+Client:
+ Version:           18.09.0
+ API version:       1.39
+ Go version:        go1.10.4
+ Git commit:        4d60db4
+ Built:             Wed Nov  7 00:48:22 2018
+ OS/Arch:           linux/amd64
+ Experimental:      false
+
+Server: Docker Engine - Community
+ Engine:
+  Version:          18.09.0
+  API version:      1.39 (minimum version 1.12)
+  Go version:       go1.10.4
+  Git commit:       4d60db4
+  Built:            Wed Nov  7 00:19:08 2018
+  OS/Arch:          linux/amd64
+  Experimental:     false
+```
+
+To get more detailed info about your docker server:
+
+```bash
+docker system info
+Containers: 1
+ Running: 1
+ Paused: 0
+ Stopped: 0
+Images: 27
+Server Version: 18.09.0
+Storage Driver: overlay2
+ Backing Filesystem: xfs
+ Supports d_type: true
+ Native Overlay Diff: true
+Logging Driver: json-file
+Cgroup Driver: cgroupfs
+Plugins:
+ Volume: local
+ Network: bridge host macvlan null overlay
+ Log: awslogs fluentd gcplogs gelf journald json-file local logentries splunk syslog
+Swarm: inactive
+Runtimes: runc
+Default Runtime: runc
+Init Binary: docker-init
+containerd version: c4446665cb9c30056f4998ed953e6d4ff22c7c39
+runc version: 4fc53a81fb7c994640722ac585fa9ca548971871
+init version: fec3683
+Security Options:
+ seccomp
+  Profile: default
+Kernel Version: 3.10.0-862.3.2.el7.x86_64
+Operating System: CentOS Linux 7 (Core)
+OSType: linux
+Architecture: x86_64
+CPUs: 1
+Total Memory: 1.794GiB
+Name: PreprodWallboard.servers.castletrust.co.uk
+ID: Z7I2:G4SF:HQM2:O6IX:NFZP:RGLA:OQWU:76EE:2EVJ:QSYR:KI5Q:7GOW
+Docker Root Dir: /var/lib/docker
+Debug Mode (client): false
+Debug Mode (server): false
+Registry: https://index.docker.io/v1/
+Labels:
+Experimental: false
+Insecure Registries:
+ 127.0.0.0/8
+Live Restore Enabled: false
+Product License: Community Engine
+
+WARNING: bridge-nf-call-iptables is disabled
+WARNING: bridge-nf-call-ip6tables is disabled
+```
+
+To download the [hello-world](https://hub.docker.com/_/hello-world/) docker image from docker hub, and then create a container from that image, run:
+
+```bash
+docker run hello-world
+Unable to find image 'hello-world:latest' locally
+latest: Pulling from library/hello-world
+1b930d010525: Pull complete
+Digest: sha256:2557e3c07ed1e38f26e389462d03ed943586f744621577a99efb77324b0fe535
+Status: Downloaded newer image for hello-world:latest
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+```
+
+
+To view a list of docker images currently stored locally, do:
+
+```bash
+docker image ls
+```
+
+To list running docker containers:
+
+```bash
+$ docker container ls
+CONTAINER ID        IMAGE                COMMAND             CREATED             STATUS              PORTS                  NAMES
+ea2fed155c0b        dashing              "/run.sh"           4 hours ago         Up 4 hours          0.0.0.0:80->3030/tcp   wallboard
+```
+
+This only shows running containers, not stopped containers, to view all running+stopped containers do:
+
+```bash
+docker container ls --all
+```
+
+to stop and delete a container do:
+
+```bash
+docker container stop {container-name}
+docker container rm {container-name}
+```
+
+To delete all containers and images:
+
+```bash
+docker container stop $(docker container ls --all --quiet)
+docker container rm $(docker container ls --all --quiet)
+docker image rm $(docker image ls --quiet)
+```
+This effectively does a factory reset of your docker server
+
+
+Here's another hello world example:
+
+```bash
+$ docker run centos:latest /bin/echo "hello world"
+Unable to find image 'centos:latest' locally
+latest: Pulling from library/centos
+a02a4930cb5d: Pull complete
+Digest: sha256:184e5f35598e333bfa7de10d8fb1cebb5ee4df5bc0f970bf2b1e7c7345136426
+Status: Downloaded newer image for centos:latest
+hello world
+```
+
+This command did the following:
+
+1. download the latest official centos image
+2. start a container from that image to run the workload
+3. run the workload, which is an echo command
+4. stop the container, after/if it has finished running the workload
+
+here's how to view the container that ran the worklaod:
+
+```bash
+$ docker container ls --all
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                     PORTS               NAMES
+b2ca6fc42122        centos:latest       "/bin/echo 'hello wo…"   9 minutes ago       Exited (0) 9 minutes ago                       kind_hellman
+```
+
+To view the standard output of the workload:
+
+```bash
+$ docker logs kind_hellman
+hello world
+```
+
+Here's another example, but this time running a long running process:
+
+```bash 
+docker run --detach httpd
+```
+
+This downla
+
+
