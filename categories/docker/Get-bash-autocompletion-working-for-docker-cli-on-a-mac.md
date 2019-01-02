@@ -16,7 +16,7 @@ ln -s /Applications/Docker.app/Contents/Resources/etc/docker-compose.bash-comple
 
 Then restart the bash terminal. Therefore running the above ln commands resulted in the following files being created:
 
-
+```bash
 $ pwd
 /usr/local/etc/bash_completion.d
 $ cd /usr/local/etc/bash_completion.d/
@@ -27,7 +27,7 @@ $ ll | grep docker
 -rw-r--r--  1 schowdhury  admin   1469 19 Oct 11:19 docker-machine-prompt
 -rw-r--r--  1 schowdhury  admin   1525 19 Oct 11:18 docker-machine-wrapper
 
-
+```
 
 References:
 <a href="https://webascrazy.net/2017/02/02/add-docker-autocompletion-in-your-shell/" rel="nofollow">https://webascrazy.net/2017/02/02/add-docker-autocompletion-in-your-shell/</a>
