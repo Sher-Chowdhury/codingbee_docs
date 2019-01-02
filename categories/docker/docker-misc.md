@@ -160,9 +160,9 @@ hello world
 
 This command did the following:
 
-1. download the latest official centos image
+1. download the latest official centos image - you can just do this step by running: "docker pull centos:latest"
 2. start a container from that image to run the workload
-3. run the workload, which is an echo command
+3. run the workload, which in this example is echo command
 4. stop the container, after/if it has finished running the workload
 
 here's how to view the container that ran the worklaod:
@@ -179,6 +179,19 @@ To view the standard output of the workload:
 $ docker logs kind_hellman
 hello world
 ```
+
+The (workload) command section of the above command is actually optional. The image comes with a dafault workload command built-in. So we effectively did an override. To see what the default command is, do:
+
+```bash
+$ docker container run centos:latest
+$ docker container ls --all
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
+8a824c21a5a9        centos:latest       "/bin/bash"         11 seconds ago      Exited (0) 10 seconds ago                       fervent_gauss
+```
+
+As you can see, it is just /bin/bash. This command is the last command on the [CentOS 7 official Dockerfile](https://hub.docker.com/_/centos/)
+
+
 
 Here's another example, but this time running a long running process:
 
