@@ -158,12 +158,20 @@ Status: Downloaded newer image for centos:latest
 hello world
 ```
 
-This command did the following:
+This command did the following tasks:
 
 1. download the latest official centos image - you can just do this step by running: "docker pull centos:latest"
 2. start a container from that image to run the workload
 3. run the workload, which in this example is echo command
 4. stop the container, after/if it has finished running the workload
+
+The docker run command is actually running the following 3 commands behind the scenes:
+
+```bash
+docker pull centos:latest
+docker create centos        # this creates a container from the image, but doesn't start it yet
+docker start -a {container_id}  # -a means show all output while the container is running
+```
 
 here's how to view the container that ran the worklaod:
 
@@ -179,6 +187,8 @@ To view the standard output of the workload:
 $ docker logs kind_hellman
 hello world
 ```
+
+The logs command is really useful for debugging purposes. E.g. you can use it to view the logs of a stopped container and find out why it stopped unexpectedly. 
 
 The (workload) command section of the above command is actually optional. The image comes with a dafault workload command built-in. So we effectively did an override. To see what the default command is, do:
 
@@ -259,6 +269,9 @@ docker container run -it centos:latest /bin/bash
 ```
 
 -i means interactive. and -t means tty terminal mode.
+
+
+
 
 ## Build Docker images
 
