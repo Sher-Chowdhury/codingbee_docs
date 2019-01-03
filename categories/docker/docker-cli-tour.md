@@ -147,9 +147,7 @@ docker container kill {container-name}
 To delete all containers and images:
 
 ```bash
-docker container stop $(docker container ls --all --quiet)
-docker container rm $(docker container ls --all --quiet)
-docker image rm $(docker image ls --quiet)
+docker container stop $(docker container ls --all --quiet) ; docker container rm $(docker container ls --all --quiet) ; docker image rm $(docker image ls --quiet)
 ```
 
 This effectively does a factory reset of your docker server. Here's another way to delete all containers+images and start again:
@@ -157,6 +155,9 @@ This effectively does a factory reset of your docker server. Here's another way 
 ```bash
 docker system prune
 ```
+
+However this prune command doesn't delete runnning containers or images associated to them. 
+
 
 Here's another hello world example:
 
