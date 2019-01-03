@@ -31,3 +31,8 @@ You can also view the layers used to build this image:
 docker history wallboard_smashing
 ```
 
+In case you're Dockerfile has a none standard name (e.g. you want to store multiple docker files in the same directory), then you can simply do:
+
+```bash
+docker build . -f {dockerfile_name} --tag {image_name}
+```
