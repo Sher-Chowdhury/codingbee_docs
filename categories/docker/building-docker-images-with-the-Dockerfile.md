@@ -15,6 +15,10 @@ You need to run the following command while inside a directory that contains a f
 docker build . --tag {image_name}
 ```
 
-This command builds several layers and stack them on top of each other in a sequence. This builds up the build process 
+This command builds several layers and stack them on top of each other in a sequence. 
+
+The first time you run this, it can take a while. 
+
+But if you run it again straight then it'll be much quicker because docker caches the layers. If you change a line in the Dockerfile, then that layer gets regenerated along with all subsequent layers. That's why, from a performance perspective, it's best practice to place time consuming lines (e.g. bundle install) as close to the top as possible, to prevent them from getting regenerated too often. 
 
 
