@@ -171,7 +171,7 @@ hello world
 
 This command did the following tasks:
 
-1. download the latest official centos image - you can just do this step by running: "docker pull centos:latest"
+1. download the latest official centos image (if image of same name isn't avaiable locally) - you can just do this step by running: "docker pull centos:latest"
 2. start a container from that image to run the workload
 3. run the workload, which in this example is echo command
 4. stop the container, after/if it has finished running the workload
@@ -184,7 +184,7 @@ docker create centos        # this creates a container from the image, but doesn
 docker start -a {container_id}  # -a means show all output while the container is running
 ```
 
-here's how to view the container that ran the worklaod:
+here's how to view the container that ran the workload:
 
 ```bash
 $ docker container ls --all
