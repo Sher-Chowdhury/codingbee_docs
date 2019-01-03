@@ -36,3 +36,6 @@ In case you're Dockerfile has a none standard name (e.g. you want to store multi
 ```bash
 docker build . -f {dockerfile_name} --tag {image_name}
 ```
+
+A stopped docker container is effectively a docker image. Hence you can spin up a container straight from an official base image, start a bash terminal inside it using exec, run some commands, exit out. Then stop the container. This effectively is the manual way of creating a docker image. However it's best practice to use the Dockerfile approach so that you have a record of everything. 
+
