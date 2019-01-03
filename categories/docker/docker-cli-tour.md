@@ -313,10 +313,3 @@ root        21     6  0 23:40 pts/0    00:00:00 grep --color=auto ping
 
 There are some cli that start up their own interactive sessions, e.g. msyql, python, irb,...etc. These can be run inside docker containers. Just make sure that the default command is the command that starts up the cli. 
 
-## Build Docker images
-
-You need to run the following command while inside a directory that contains a file called 'Dockerfile'
-
-```bash
-docker build . --tag {image_name}
-```
