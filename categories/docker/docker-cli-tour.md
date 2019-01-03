@@ -298,11 +298,20 @@ drwxr-xr-x.   5 root root   340 Jan  2 23:30 dev
 ...etc.
 ```
 
+If a container is already running and you want to access it, then you use the exec subcommand:
+
+```bash
+$ docker container run --detach centos:latest ping google.com
+571edce564332dea0f81a88557c41e855fc298c1e9f750edaaaa559a13ce0994
+$ docker exec -it 571edce564332 /bin/bash
+[root@571edce56433 /]# ps -ef | grep ping
+root         1     0  0 23:39 ?        00:00:00 ping google.com
+root        21     6  0 23:40 pts/0    00:00:00 grep --color=auto ping
+```
+
 ## running interactive CLIs inside docker containers
 
 There are some cli that start up their own interactive sessions, e.g. msyql, python, irb,...etc. These can be run inside docker containers. Just make sure that the default command is the command that starts up the cli. 
-
-
 
 ## Build Docker images
 
