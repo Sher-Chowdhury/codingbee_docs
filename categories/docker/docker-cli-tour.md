@@ -142,8 +142,6 @@ The stop command tries to stop the container gracefully. If after 10 seconds it'
 docker container kill {container-name}  
 ```
 
-
-
 To delete all containers and images:
 
 ```bash
