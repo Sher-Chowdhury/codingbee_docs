@@ -10,6 +10,21 @@ Docker-Compose command is an optional tool, that you don't have to use. However 
 once you have created your dockercompose file, you then run:
 
 ```bash
-docker-compose up
+docker-compose up --detach
 ```
 
+To delete all resources created by the above command, run:
+
+```bash
+docker-compose down --timeout 1 --volumes --rmi all
+```
+
+To delete absolutely everything:
+
+```bash
+docker container stop $(docker container ls --all --quiet)
+docker container rm $(docker container ls --all --quiet)
+docker image rm $(docker image ls --quiet)
+docker volume rm $(docker volume ls --quiet)
+docker system prune --all --volumes --force
+```
