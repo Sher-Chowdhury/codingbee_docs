@@ -201,7 +201,7 @@ docker container stop $(docker container ls --all --quiet) ; docker container rm
 This effectively does a factory reset of your docker server. Here's another way to delete all containers+images and start again:
 
 ```bash
-docker system prune
+docker system prune --all --volumes --force
 ```
 
 However this prune command doesn't delete runnning containers or images associated to them. 
