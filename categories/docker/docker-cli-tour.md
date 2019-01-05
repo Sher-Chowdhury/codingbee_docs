@@ -77,7 +77,77 @@ WARNING: bridge-nf-call-iptables is disabled
 WARNING: bridge-nf-call-ip6tables is disabled
 ```
 
-To download the [hello-world](https://hub.docker.com/_/hello-world/) docker image from docker hub, and then create a container from that image, run:
+Here's a simple hello-world example, first we download the [hello-world](https://hub.docker.com/_/hello-world/) docker image from docker hub:
+
+```bash
+$ docker pull hello-world
+Using default tag: latest
+latest: Pulling from library/hello-world
+1b930d010525: Pull complete
+Digest: sha256:2557e3c07ed1e38f26e389462d03ed943586f744621577a99efb77324b0fe535
+Status: Downloaded newer image for hello-world:latest
+```
+
+
+We now have the followng image available locally:
+
+```bash
+$ docker image ls
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+hello-world         latest              fce289e99eb9        4 days ago          1.84kB
+```
+
+We now create a container from this image:
+
+```bash
+$ docker container create hello-world
+cbc947515086aceb33c46197b29b08fffc5adcb1c84ff0d5d6609788a4b632f0
+```
+
+This creates the following container:
+
+```bash
+$ docker container ls --all
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+cbc947515086        hello-world         "/hello"            42 seconds ago      Created                                 thirsty_hopper
+```
+
+The command only lists containers that are running. That's why we used the --all flag to force this command list all running and stopped containers. Also notice that are container has a randomly generated name, 'thirsty_hopper'.
+
+At the moment our container isn't running. So let's start it:
+
+```bash
+$ docker container start thirsty_hopper
+thirsty_hopper
+```
+looks like not much has happened, but if we check our container's logs:
+
+```bash
+$ docker logs thirsty_hopper
+
+Hello from Docker!
+This message shows that your installation appears to be working correctly.
+
+To generate this message, Docker took the following steps:
+ 1. The Docker client contacted the Docker daemon.
+ 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
+    (amd64)
+ 3. The Docker daemon created a new container from that image which runs the
+    executable that produces the output you are currently reading.
+ 4. The Docker daemon streamed that output to the Docker client, which sent it
+    to your terminal.
+
+To try something more ambitious, you can run an Ubuntu container with:
+ $ docker run -it ubuntu bash
+
+Share images, automate workflows, and more with a free Docker ID:
+ https://hub.docker.com/
+
+For more examples and ideas, visit:
+ https://docs.docker.com/get-started/
+```
+
+This is our hello-world message. We had to run a lot of commands to get this message. However there is a shorthand 'run' command that essentially does the same thing:
 
 ```bash
 docker run hello-world
@@ -109,31 +179,11 @@ For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 ```
 
-To view a list of docker images currently stored locally, do:
+To stop and delete a container do:
 
 ```bash
-docker image ls
-```
-
-To list running docker containers:
-
-```bash
-$ docker container ls
-CONTAINER ID        IMAGE                COMMAND             CREATED             STATUS              PORTS                  NAMES
-ea2fed155c0b        dashing              "/run.sh"           4 hours ago         Up 4 hours          0.0.0.0:80->3030/tcp   wallboard
-```
-
-This only shows running containers, not stopped containers, to view all running+stopped containers do:
-
-```bash
-docker container ls --all
-```
-
-to stop and delete a container do:
-
-```bash
-docker container stop {container-name}  
-docker container rm {container-name}
+docker container stop thirsty_hopper
+docker container rm thirsty_hopper
 ```
 
 The stop command tries to stop the container gracefully. If after 10 seconds it's still running then docker will issue the kill command, which stops the container by force:
