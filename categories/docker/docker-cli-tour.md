@@ -142,9 +142,7 @@ For more examples and ideas, visit:
 
 ```
 
-This container only runs long enough to output the above message. It then stopped running as soon as the output was given. 
-
-You can also view this output via the container's log:
+This container only runs long enough to output the above message. It then stopped running as soon as the output was given. You can also view this output via the container's log:
 
 ```bash
 $ docker logs thirsty_hopper
@@ -229,34 +227,7 @@ This effectively does a factory reset of your docker server. Here's another way 
 docker system prune --all --volumes --force
 ```
 
-Here's another hello world example:
-
-```bash
-$ docker run centos:latest /bin/echo "hello world"
-Unable to find image 'centos:latest' locally
-latest: Pulling from library/centos
-a02a4930cb5d: Pull complete
-Digest: sha256:184e5f35598e333bfa7de10d8fb1cebb5ee4df5bc0f970bf2b1e7c7345136426
-Status: Downloaded newer image for centos:latest
-hello world
-```
-
-This command did the following tasks:
-
-1. download the latest official centos image (if image of same name isn't avaiable locally) - you can just do this step by running: "docker pull centos:latest"
-2. start a container from that image to run the workload
-3. run the workload, which in this example is echo command
-4. stop the container, after/if it has finished running the workload
-
-The docker run command is actually running the following 3 commands behind the scenes:
-
-```bash
-docker pull centos:latest
-docker create centos        # this creates a container from the image, but doesn't start it yet
-docker start -a {container_id}  # -a means show all output while the container is running
-```
-
-here's how to view the container that ran the workload:
+Here's how to view the container that ran the workload:
 
 ```bash
 $ docker container ls --all
@@ -305,9 +276,6 @@ CONTAINER ID        IMAGE               COMMAND              CREATED            
 2200dbbd2297        httpd               "httpd-foreground"   About a minute ago   Up About a minute   0.0.0.0:80->80/tcp   practical_napier
 ```
 
-
-
-
 This shows that it is listening on port 80, however that's access port 80 from inside the Docker container. To access it from the host machine, you need to setup port forwarding, which we'll cover later. To view what's happenign inside the containter run:
 
 ```bash
@@ -331,7 +299,6 @@ $ docker container ls
 CONTAINER ID        IMAGE               COMMAND              CREATED              STATUS              PORTS                NAMES
 2200dbbd2297        httpd               "httpd-foreground"   About a minute ago   Up About a minute   0.0.0.0:80->80/tcp   practical_napier
 ```
-
 
 Now you tail the logs:
 
