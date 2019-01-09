@@ -173,7 +173,7 @@ For more examples and ideas, visit:
 So far we ran 3 commands, to get the hello-world message. However there is a shorthand 'run' command that essentially runs all three of these commands behind the scenes.:
 
 ```bash
-docker run hello-world
+$ docker run hello-world
 Unable to find image 'hello-world:latest' locally
 latest: Pulling from library/hello-world
 1b930d010525: Pull complete
