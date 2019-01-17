@@ -148,7 +148,7 @@ This is a bit like bookmarking various Azure pages/widgets (by clicking on the p
 
 # Availability Sets
 
-This is a 
+This is a system for protection resources from hardware failure.
 
 
 
