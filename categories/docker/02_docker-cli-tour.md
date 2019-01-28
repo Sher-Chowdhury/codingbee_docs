@@ -227,7 +227,7 @@ This effectively does a factory reset of your docker server. Here's another way 
 docker system prune --all --volumes --force
 ```
 
-A container is designed to run a specific workload, which is in the form of a command. The container will stay running as long as the command's underlying process is running. Here's how to view what the command is:
+A container is designed to run a specific workload, which is in the form of a command. The container will stay running as long as the command's underlying process is running. Here's how to view what the command/workload is, see the 'Command' column:
 
 ```bash
 $ docker container ls --all
@@ -244,7 +244,7 @@ hello world
 
 The logs command is really useful for debugging purposes. E.g. you can use it to view the logs of a stopped container and find out why it stopped unexpectedly. 
 
-The (workload) command section of the above command is actually optional. The image comes with a dafault workload command built-in. So we effectively did an override. To see what the default command is, do:
+The (workload) command section of the above command is actually optional. The image usually comes with a dafault workload command built-in. So we effectively did an override. To see what the default command is, do:
 
 ```bash
 $ docker container run centos:latest
