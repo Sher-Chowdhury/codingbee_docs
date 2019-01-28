@@ -227,7 +227,7 @@ This effectively does a factory reset of your docker server. Here's another way 
 docker system prune --all --volumes --force
 ```
 
-Here's how to view the container that ran the workload:
+A container is designed to run a specific workload, which is in the form of a command. The container will stay running as long as the command's underlying process is running. Here's how to view what the command is:
 
 ```bash
 $ docker container ls --all
