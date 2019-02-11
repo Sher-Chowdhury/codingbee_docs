@@ -108,7 +108,7 @@ hello-world         latest              fce289e99eb9        4 days ago          
 **Step 2:** We now create a container from this image:
 
 ```bash
-$ docker container create  --name cntr_hello-world hello-world
+$ docker container create --name cntr_hello-world hello-world
 cbc947515086aceb33c46197b29b08fffc5adcb1c84ff0d5d6609788a4b632f0
 ```
 Here we used the optional --name flag to give a name to our container. If we din't use the name flag, then docker will randomly generate a name for us. I also used a 'cntnr_' prefix in the name just to help us keep track of things.   
