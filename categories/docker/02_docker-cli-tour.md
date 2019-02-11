@@ -118,8 +118,7 @@ This creates the following container:
 ```bash
 $ docker container ls --all
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-cbc947515086        hello-world         "/hello"            50 seconds ago      Created                     
-cntr_hello-world
+cbc947515086        hello-world         "/hello"            50 seconds ago      Created                                 cntr_hello-world
 ```
 
 The command only lists containers that are running. That's why we used the --all flag to force this command list all running and stopped containers. Also notice that are container has a randomly generated name, 'thirsty_hopper'.
@@ -221,14 +220,14 @@ For more examples and ideas, visit:
 To stop and delete a container do:
 
 ```bash
-docker container stop thirsty_hopper
-docker container rm thirsty_hopper
+docker container stop cntr_name
+docker container rm cntr_name
 ```
 
 The stop command tries to stop the container gracefully. If after 10 seconds it's still running then docker will issue the kill command, which stops the container by force:
 
 ```bash
-docker container kill {container-name}  
+docker container kill cntr_name  
 ```
 
 To delete all containers and images:
