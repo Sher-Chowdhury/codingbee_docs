@@ -1,5 +1,6 @@
 # Docker notes
 
+## View info about your General Docker setup
 To get docker version info:
 
 ```bash
@@ -77,7 +78,15 @@ WARNING: bridge-nf-call-iptables is disabled
 WARNING: bridge-nf-call-ip6tables is disabled
 ```
 
-Here's a simple hello-world example, first we download the [hello-world](https://hub.docker.com/_/hello-world/) docker image from docker hub:
+## A simple hello-world example
+
+This example is made up 3 steps:
+
+1. download the hello-world image
+2. create a container from the image
+3. start the container
+
+*Step 1:* we download the [hello-world](https://hub.docker.com/_/hello-world/) docker image from docker hub:
 
 ```bash
 $ docker pull hello-world
@@ -88,7 +97,6 @@ Digest: sha256:2557e3c07ed1e38f26e389462d03ed943586f744621577a99efb77324b0fe535
 Status: Downloaded newer image for hello-world:latest
 ```
 
-
 We now have the followng image available locally:
 
 ```bash
@@ -97,7 +105,7 @@ REPOSITORY          TAG                 IMAGE ID            CREATED             
 hello-world         latest              fce289e99eb9        4 days ago          1.84kB
 ```
 
-We now create a container from this image:
+*Step 2:* We now create a container from this image:
 
 ```bash
 $ docker container create hello-world
@@ -114,7 +122,7 @@ cbc947515086        hello-world         "/hello"            42 seconds ago      
 
 The command only lists containers that are running. That's why we used the --all flag to force this command list all running and stopped containers. Also notice that are container has a randomly generated name, 'thirsty_hopper'.
 
-At the moment our container isn't running. So let's start it:
+*Step 3:* So far we have created the container but haven't started it yet. So let's start it:
 
 ```bash
 $ docker container start --attach thirsty_hopper 
@@ -169,8 +177,8 @@ For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 ```
 
-
-So far we ran 3 commands, to get the hello-world message. However there is a shorthand 'run' command that essentially runs all three of these commands behind the scenes.:
+## A simple hello-world example - using the 'run' command
+So far we ran 3 commands, to get the hello-world message. However there is a shorthand 'run' command that essentially runs all three of these commands behind the scenes:
 
 ```bash
 $ docker run hello-world
@@ -202,6 +210,10 @@ For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 ```
 
+
+
+## Stopping and deleting containers
+
 To stop and delete a container do:
 
 ```bash
@@ -227,7 +239,8 @@ This effectively does a factory reset of your docker server. Here's another way 
 docker system prune --all --volumes --force
 ```
 
-A container is designed to run a specific workload, which is in the form of a command. The container will stay running as long as the command's underlying process is running. Here's how to view what the command/workload is, see the 'Command' column:
+## Short/Long running containers
+A container is designed to run a specific workload, which is in the form of a command. The container will stay running as long as the command's underlying process is running. Here's how to view what that command/workload is (see the 'Command' column):
 
 ```bash
 $ docker container ls --all
@@ -264,8 +277,7 @@ Here's another example, but this time running a long running process:
 docker run --detach httpd
 ```
 
-This downloads the official apache web server docker image, and starts a container with it. I needed to use the --detach flag
-otherwise the docker run command just hangs.
+This downloads the official apache web server docker image, and starts a container with it. I needed to use the --detach flag, otherwise the docker run command just hangs.
 
 ```bash
 $ docker container ls
