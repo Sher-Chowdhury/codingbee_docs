@@ -86,7 +86,7 @@ This example is made up 3 steps:
 2. create a container from the image
 3. start the container
 
-*Step 1:* we download the [hello-world](https://hub.docker.com/_/hello-world/) docker image from docker hub:
+**Step 1:** we download the [hello-world](https://hub.docker.com/_/hello-world/) docker image from docker hub:
 
 ```bash
 $ docker pull hello-world
@@ -105,7 +105,7 @@ REPOSITORY          TAG                 IMAGE ID            CREATED             
 hello-world         latest              fce289e99eb9        4 days ago          1.84kB
 ```
 
-*Step 2:* We now create a container from this image:
+**Step 2:** We now create a container from this image:
 
 ```bash
 $ docker container create  --name cntr_hello-world hello-world
@@ -124,7 +124,7 @@ cntr_hello-world
 
 The command only lists containers that are running. That's why we used the --all flag to force this command list all running and stopped containers. Also notice that are container has a randomly generated name, 'thirsty_hopper'.
 
-*Step 3:* So far we have created the container but haven't started it yet. So let's start it:
+**Step 3:** So far we have created the container but haven't started it yet. So let's start it:
 
 ```bash
 $ docker container start --attach cntr_hello-world 
