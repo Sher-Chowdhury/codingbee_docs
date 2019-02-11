@@ -108,16 +108,18 @@ hello-world         latest              fce289e99eb9        4 days ago          
 *Step 2:* We now create a container from this image:
 
 ```bash
-$ docker container create hello-world
+$ docker container create  --name cntr_hello-world hello-world
 cbc947515086aceb33c46197b29b08fffc5adcb1c84ff0d5d6609788a4b632f0
 ```
+Here we used the optional --name flag to give a name to our container. If we din't use the name flag, then docker will randomly generate a name for us. I also used a 'cntnr_' prefix in the name just to help us keep track of things.   
 
 This creates the following container:
 
 ```bash
 $ docker container ls --all
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-cbc947515086        hello-world         "/hello"            42 seconds ago      Created                                 thirsty_hopper
+cbc947515086        hello-world         "/hello"            50 seconds ago      Created                     
+cntr_hello-world
 ```
 
 The command only lists containers that are running. That's why we used the --all flag to force this command list all running and stopped containers. Also notice that are container has a randomly generated name, 'thirsty_hopper'.
@@ -125,7 +127,7 @@ The command only lists containers that are running. That's why we used the --all
 *Step 3:* So far we have created the container but haven't started it yet. So let's start it:
 
 ```bash
-$ docker container start --attach thirsty_hopper 
+$ docker container start --attach cntr_hello-world 
 
 Hello from Docker!
 This message shows that your installation appears to be working correctly.
@@ -149,6 +151,8 @@ For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 
 ```
+
+The --attach flag is used to tell docker to attach our current bash session to this docker container's standard output. If we omitted it, then the container would have run, but it wouldn't have displayed the above message. 
 
 This container only runs long enough to output the above message. It then stopped running as soon as the output was given. You can also view this output via the container's log:
 
