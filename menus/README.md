@@ -21,3 +21,8 @@ mkdir ~/.wp-cli
 echo '---' >> ~/.wp-cli/config.yml
 echo 'path: /home/codingbe/www' >> ~/.wp-cli/config.yml
 ```
+
+
+go back to your macbook, cd to the menus repo in your local copy of this repo, then run:
+
+scp -rP 18765 codingbe@codingbee.net:~/codingbee_docs/menus/* .
