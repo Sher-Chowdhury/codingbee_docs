@@ -1,6 +1,7 @@
 # Docker notes
 
 ## View info about your General Docker setup
+
 To get docker version info:
 
 ```bash
@@ -111,6 +112,7 @@ hello-world         latest              fce289e99eb9        4 days ago          
 $ docker container create --name cntr_hello-world hello-world
 cbc947515086aceb33c46197b29b08fffc5adcb1c84ff0d5d6609788a4b632f0
 ```
+
 Here we used the optional --name flag to give a name to our container. If we din't use the name flag, then docker will randomly generate a name for us. I also used a 'cntnr_' prefix in the name just to help us keep track of things.   
 
 This creates the following container:
@@ -180,7 +182,8 @@ For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 ```
 
-## A simple hello-world example - using the 'run' command
+## Another hello-world example - this time using the 'run' command
+
 So far we ran 3 commands, to get the hello-world message. However there is a shorthand 'run' command that essentially runs all three of these commands behind the scenes:
 
 ```bash
@@ -212,8 +215,6 @@ Share images, automate workflows, and more with a free Docker ID:
 For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 ```
-
-
 
 ## Stopping and deleting containers
 

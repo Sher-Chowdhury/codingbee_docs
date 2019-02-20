@@ -1,5 +1,12 @@
 # Install Docker for mac using homebrew
 
+Installing Docker effectively results in installing the following 2 subcomponents:
+
+- Docker Client (aka docker cli)
+- Docker Daemon (aka Docker Daemon)
+
+Docker client is a cli tool that's used for interacting with the Docker Daemon. 
+
 Here's the command I ran:
 
 ```bash
