@@ -123,7 +123,17 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 cbc947515086        hello-world         "/hello"            50 seconds ago      Created                                 cntr_hello-world
 ```
 
-The command only lists containers that are running. That's why we used the --all flag to force this command list all running and stopped containers. Also notice that are container has a randomly generated name, 'thirsty_hopper'.
+The command only lists containers that are running. That's why we used the --all flag to force this command list all running and stopped containers.
+
+A more shorthand way to get this info is by using the ps subcommand:
+
+```bash
+$ docker ps --all
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+cbc947515086        hello-world         "/hello"            50 seconds ago      Created                                 cntr_hello-world
+```
+
+This shows the same info but with less typing. 
 
 **Step 3:** So far we have created the container but haven't started it yet. So let's start it:
 
@@ -216,7 +226,60 @@ For more examples and ideas, visit:
  https://docs.docker.com/get-started/
 ```
 
-## Stopping and deleting containers
+## Overriding the default startup command
+
+Images usually has default startup command that get's executed when you start a container from that image. E.g. for the official httpd image it is 'httpd-foreground'. However you can override this, here's an example of one way to do this by latching on your command at the end of the run command:
+
+```bash
+$ docker run httpd pwd
+/usr/local/apache2
+$ docker run httpd ls -lrt /
+total 64
+drwxr-xr-x   2 root root 4096 Jan 22 13:47 home
+drwxr-xr-x   2 root root 4096 Jan 22 13:47 boot
+drwxr-xr-x   1 root root 4096 Feb  4 00:00 var
+drwxr-xr-x   1 root root 4096 Feb  4 00:00 usr
+drwxr-xr-x   2 root root 4096 Feb  4 00:00 srv
+drwxr-xr-x   2 root root 4096 Feb  4 00:00 sbin
+drwxr-xr-x   3 root root 4096 Feb  4 00:00 run
+drwx------   2 root root 4096 Feb  4 00:00 root
+drwxr-xr-x   2 root root 4096 Feb  4 00:00 opt
+drwxr-xr-x   2 root root 4096 Feb  4 00:00 mnt
+drwxr-xr-x   2 root root 4096 Feb  4 00:00 media
+drwxr-xr-x   2 root root 4096 Feb  4 00:00 lib64
+dr-xr-xr-x  13 root root    0 Feb 11 19:18 sys
+drwxrwxrwt   1 root root 4096 Feb 12 21:21 tmp
+drwxr-xr-x   1 root root 4096 Feb 12 21:22 bin
+drwxr-xr-x   1 root root 4096 Feb 12 21:22 lib
+drwxr-xr-x   1 root root 4096 Feb 20 12:38 etc
+dr-xr-xr-x 200 root root    0 Feb 20 12:38 proc
+drwxr-xr-x   5 root root  340 Feb 20 12:38 dev
+```
+
+Here we also get a glimps of the 'httpd' images filesystem at the top level. 
+
+When a container is created (e.g. using the docker create or run subcommands), that containers startup command is locked-in and can no longer be overridden:
+
+```bash
+$ docker ps --all
+CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS                     PORTS               NAMES
+3693756a3fee        httpd               "echo HELLO"        About a minute ago   Exited (0) 7 seconds ago                       cntr_hello-apache
+$ docker start --attach cntr_hello-apache
+HELLO
+```
+
+So if you try to override, you'll get an error message:
+
+```bash
+$ docker start -a cntr_hello-apache echo goodby
+you cannot start and attach multiple containers at once
+```
+
+Therefore you can only set the startup command during the container's creation time only. 
+
+Also everytime you start a stopped container, it will rerun the startup command. 
+
+## Listing, Stopping and deleting containers
 
 To stop and delete a container do:
 
@@ -242,6 +305,13 @@ This effectively does a factory reset of your docker server. Here's another way 
 ```bash
 docker system prune --all --volumes --force
 ```
+
+Sometimes containers can hang while trying to stop them gracefully, so here's a way to do the cleanup more forcefully, using the 'kill' subcommand:
+
+```bash
+docker container kill $(docker container ls --all --quiet) ; docker container rm $(docker container ls --all --quiet) ; docker image rm $(docker image ls --quiet)
+```
+Note, by default the stop also issues the kill command after a 10 second timeout. 
 
 ## Short/Long running containers
 A container is designed to run a specific workload, which is in the form of a command. The container will stay running as long as the command's underlying process is running. Here's how to view what that command/workload is (see the 'Command' column):
@@ -362,6 +432,18 @@ $ docker exec -it 571edce564332 /bin/bash
 root         1     0  0 23:39 ?        00:00:00 ping google.com
 root        21     6  0 23:40 pts/0    00:00:00 grep --color=auto ping
 ```
+This exec approach means that you are effectively running 2 processes inside the container, the primary startup command, and your newer exec command, which in this example is a bash terminal. This is useful for troubleshooting purposes. 
+
+Another way to access a bash terminal is something like:
+
+```bash
+$ docker run -it httpd /bin/bash
+root@2fea18cc5e91:/usr/local/apache2#
+```
+
+However here we've effectively done an override of the default startup comamnd with /bin/bash. Hence there is only one process running inside this container, bash. This approach can be useful for just exploring the image's filesystem and other troubleshooting purposes. 
+
+
 
 ## running interactive CLIs inside docker containers
 
