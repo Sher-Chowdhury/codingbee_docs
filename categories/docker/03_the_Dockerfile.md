@@ -81,3 +81,13 @@ A stopped docker container is effectively a docker image. Hence you can spin up 
 ### WORKDIR
 
 This is used to specify the default directory to drop contents to. Best to set this before using the COPY instructino. Otherwise you'll end up putting files in the wrong places. 
+
+
+### EXPOSE
+
+This has 2 purpose,
+
+1. for the readers of the dockerfile, it tells them which port the container should be listening on. 
+2. I think docker also uses this for automatic mapping
+
+Also see: https://medium.freecodecamp.org/expose-vs-publish-docker-port-commands-explained-simply-434593dbc9a3
