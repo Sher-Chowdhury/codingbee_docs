@@ -221,9 +221,10 @@ Now, you can test either via a web browser, or with curl:
 $ curl http://192.168.99.100:31000
 <html><body><h1>It works!</h1></body></html>
 ```
+
 Note, when you access a pod like this, you would normally do it via a loadbalancer that sits in front of the worker nodes. 
 
-# Deleting objects
+## Deleting objects
 
 To delete the objects we created, run:
 
@@ -234,9 +235,7 @@ $ kubectl delete -f configs/pod-object-definition.yml
 pod "pod-httpd" deleted
 ```
 
-
-
-### References
+## References
 
 https://kubernetes.io/docs/concepts/overview/kubernetes-api/
 https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/
