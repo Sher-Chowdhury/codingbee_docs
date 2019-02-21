@@ -1,0 +1,26 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-nginx
+  labels:
+    component: apache_webserver
+spec:
+  replicas: 2   # This sets the number of pods that needs to exist. 
+                # This is a bit like the ASG equivalent of min/desired/max, but as a single value. 
+  selector:
+    matchLabels:
+      component: apache_webserver  # this is used by a deployment object to keep track of which pods it's configuration created.
+
+  template:  # the content nested in this section is pretty much what was in the pod-definition yaml file. 
+             # I.e. it's the aws equivalent of the EC2 Launch Configuration. 
+    metadata:
+      labels:
+        component: apache_webserver  # this needs to be match up with the matchLabels setting above, otherwise the deployment
+                                     # object will lose track of which pods it instructed kubemaster to create. 
+    spec: 
+      containers:
+        - name: cntr-nginx
+          image: nginx:latest    # note you can specify the tag, e.g. latest. 
+          ports:
+            - containerPort: 80
