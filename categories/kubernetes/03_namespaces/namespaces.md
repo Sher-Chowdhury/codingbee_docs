@@ -110,7 +110,7 @@ spec:
     component: apache_webserver
 ```
 
-We can apply them using the usual apply command. And then we can check that they have been created by running:
+We can apply them using the usual apply commands. And then we can check that they have been created by running:
 
 ```bash
 $ kubectl get all --namespace=codingbee-hello-world 
@@ -120,3 +120,5 @@ po/pod-httpd   1/1       Running   0          6m
 NAME                                CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
 svc/svc-nodeport-apache-webserver   10.109.20.222   <nodes>       3050:31000/TCP   1m
 ```
+
+You always have to specify namespace flag in the command line flag when you organise all your objects using them. However we'll stick to using the default namespace, just for convenience. 

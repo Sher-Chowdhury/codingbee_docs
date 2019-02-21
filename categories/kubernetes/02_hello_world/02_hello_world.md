@@ -17,40 +17,6 @@ $ kubectl get deployments
 No resources found.
 ```
 
-However, a kubecluster itself does have objects that it uses internally for it's working, you can view them like this:
-
-```bash
-$ kubectl get all --all-namespaces
-NAMESPACE     NAME                                      READY     STATUS    RESTARTS   AGE
-kube-system   po/coredns-86c58d9df4-cnqnr               1/1       Running   0          1h
-kube-system   po/coredns-86c58d9df4-ct8fx               1/1       Running   0          1h
-kube-system   po/etcd-minikube                          1/1       Running   0          59m
-kube-system   po/kube-addon-manager-minikube            1/1       Running   0          59m
-kube-system   po/kube-apiserver-minikube                1/1       Running   0          59m
-kube-system   po/kube-controller-manager-minikube       1/1       Running   0          59m
-kube-system   po/kube-proxy-8zwff                       1/1       Running   0          1h
-kube-system   po/kube-scheduler-minikube                1/1       Running   0          59m
-kube-system   po/kubernetes-dashboard-ccc79bfc9-l66xk   1/1       Running   0          37m
-kube-system   po/storage-provisioner                    1/1       Running   0          1h
-
-NAMESPACE     NAME                       CLUSTER-IP      EXTERNAL-IP   PORT(S)         AGE
-default       svc/kubernetes             10.96.0.1       <none>        443/TCP         1h
-kube-system   svc/kube-dns               10.96.0.10      <none>        53/UDP,53/TCP   1h
-kube-system   svc/kubernetes-dashboard   10.103.63.176   <none>        80/TCP          37m
-
-NAMESPACE     NAME                          DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-kube-system   deploy/coredns                2         2         2            2           1h
-kube-system   deploy/kubernetes-dashboard   1         1         1            1           37m
-
-NAMESPACE     NAME                                DESIRED   CURRENT   READY     AGE
-kube-system   rs/coredns-86c58d9df4               2         2         2         1h
-kube-system   rs/kubernetes-dashboard-ccc79bfc9   1         1         1         37m
-```
-
-
-
-
-
 In kubernetes, you create an object by first creating a yaml config file, and then feeding that config file into kubectl.
 
 So here's our pod object file's yaml content:
