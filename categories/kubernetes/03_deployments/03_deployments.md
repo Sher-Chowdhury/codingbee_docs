@@ -187,3 +187,34 @@ Now if you want to increase the number of pods running under this deployment, th
 You can change port numbers too, however what deployments will end up doing is create new pods (with the correct port number) and use them to replace the existing pods that have the old port numbers.
 
 
+## Refreshing deployments with new images
+
+One of the most common changes that you're likely to want to do with a deployment is to update the pods in a deployment as soon as a newer image version becomes available in the docker hub. There's mainly three ways to do this, but none of them are that great:
+
+1. rebuilding the deployment - not recommended in a prod environment since it would lead to downtime.
+2. manually update version specified in the deployment config file - Doable, but not ideal since it involves making regular changes to your config file. Also unfortunately you can't parameterize the config files.
+3. Specify the image version on the kubectl command line, effectively overriding/deviating from the config file. - Not great since it results in configuration drift. 
+
+If you decide to take option 3, then here's what the command will look like, if we were to replace the official nginx image with the official apache image:
+
+```bash
+$ kubectl describe deployment deployment-nginx | grep Image
+    Image:              nginx:latest
+
+$ kubectl set image deployment/deployment-nginx cntr-nginx=httpd
+deployment "deployment-nginx" image updated
+
+$ kubectl describe deployment deployment-nginx | grep Image
+    Image:              httpd
+
+$ curl http://192.168.99.100:31000
+<html><body><h1>It works!</h1></body></html>
+```
+
+So the syntax is:
+
+```text
+kubectl set image {object kind}/{object-name} {container-name}={image-name}
+```
+
+
