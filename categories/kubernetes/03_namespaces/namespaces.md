@@ -16,7 +16,8 @@ default       Active    11h
 kube-public   Active    11h
 kube-system   Active    11h
 ```
-These 3 namespaces comes included in a fresh kubernetes install. 
+
+These 3 namespaces comes included in a fresh kubernetes install.
 
 When we run the `kubectl get pods` earlier, we didn't specify a namespace, so kubectl by default assumed we are only interested in the 'default' namspace. The 'kube-system' namespace store objects that are used by kubernetes internally. For example here's how to view what pods k8s uses internally:
 
@@ -64,7 +65,6 @@ rs/coredns-86c58d9df4               2         2         2         11h
 rs/kubernetes-dashboard-ccc79bfc9   1         1         1         11h
 ```
 
-
 You can organise your objects in various ways using namespace. For example, you can create namespaces called 'Prod' and 'Dev', although it's best to segment prod/dev by having seperate kubernetes cluster altogether. Alternatively, have namespaces based on project/programme name. Here's how to create a new namespace:
 
 ```bash
@@ -80,10 +80,10 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: pod-httpd
-  namespace: codingbee-hello-world       # we add this line. 
+  namespace: codingbee-hello-world       # we add this line.
   labels:
     component: apache_webserver
-spec: 
+spec:
   containers:
     - name: cntr-httpd
       image: httpd
@@ -98,7 +98,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: svc-nodeport-apache-webserver
-  namespace: codingbee-hello-world       # we add this line. 
+  namespace: codingbee-hello-world       # we add this line.
 spec:
   type: NodePort
   ports:
@@ -113,7 +113,7 @@ spec:
 We can apply them using the usual apply commands. And then we can check that they have been created by running:
 
 ```bash
-$ kubectl get all --namespace=codingbee-hello-world 
+$ kubectl get all --namespace=codingbee-hello-world
 NAME           READY     STATUS    RESTARTS   AGE
 po/pod-httpd   1/1       Running   0          6m
 
@@ -121,4 +121,4 @@ NAME                                CLUSTER-IP      EXTERNAL-IP   PORT(S)       
 svc/svc-nodeport-apache-webserver   10.109.20.222   <nodes>       3050:31000/TCP   1m
 ```
 
-You always have to specify namespace flag in the command line flag when you organise all your objects using them. However we'll stick to using the default namespace, just for convenience. 
+You always have to specify namespace flag in the command line flag when you organise all your objects using them. However we'll stick to using the default namespace, just for convenience.
