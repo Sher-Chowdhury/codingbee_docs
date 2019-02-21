@@ -141,4 +141,5 @@ $ minikube dashboard
 ### References
 https://kubernetes.io/docs/setup/minikube/
 https://kubernetes.io/docs/tutorials/hello-minikube/
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/  (talks about getting autocomplete to work)
 
