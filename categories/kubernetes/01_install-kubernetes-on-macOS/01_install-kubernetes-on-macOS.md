@@ -115,7 +115,16 @@ users:
     client-key: /Users/schowdhury/.minikube/client.key
 ```
 
-When you ran, `minikube start` earlier, what actually happened to configure kubectl cli, is that the file `~/.kube/config` was created. This shows all the configs as shown above. 
+When you ran, `minikube start` earlier, what actually happened to configure kubectl cli, is that the file `~/.kube/config` was created. This shows all the configs as shown above. So our kubectl command is specifically configured to communicate with the minikube built VM. 
+
+However our docker cli, is still configured to just interact with our macbook installed docker-daemon. But you want it also connect to the docker daemon inside the minikube built VM, then run:
+
+```bash
+eval $(minikube docker-env)
+```
+
+You might want to do this for troubleshooting/debugging purposes. However this will only last for the current bash session, and will get reset if you restart bash. 
+
 
 
 A kubecluster is normally made up of a number of VMs (aka nodes), and these nodes functions as either master or worker nodes. To see how many nodes are minikube kubecluster is made of, run:
