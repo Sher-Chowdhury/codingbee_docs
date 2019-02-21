@@ -66,9 +66,8 @@ spec:
 
 Refer to kubernetes docs for more info about [Service](https://kubernetes.io/docs/concepts/services-networking/service/) objects.
 
-
-
 ## Anatomy of an Kubernetes object config file
+
 Notice, that all these config files have the following general yaml structure:
 
 ```yaml
@@ -81,8 +80,6 @@ spec:
 ```
 
 The apiVersion, kind, metadata, and spec, are the [required fields](https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields), for all kubernetes object files.
-
-
 
 **kind:** What type object that you want to make.
 
@@ -203,5 +200,5 @@ pod "pod-httpd" deleted
 
 ## References
 
-https://kubernetes.io/docs/concepts/overview/kubernetes-api/
-https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/
+[kubernetes api concepts](https://kubernetes.io/docs/concepts/overview/kubernetes-api/)
+[kubernetes api reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/)
