@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-httpd
+  labels:
+    component: apache_webserver
+spec: 
+  containers:
+    - name: cntr-centos
+      image: centos
+      volumeMounts:
+        - name: webcontent
+          mountPath: /tmp/reports
+      command: ["/bin/bash", "-c"]
+      args:
+        - while true ; do
+            curl https://xxxx ;
+            date ;
+            sleep 5 ;
+          done

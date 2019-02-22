@@ -61,7 +61,7 @@ Commercial support is available at
 </html>
 ```
 
-Another way to if this has worked is by running:
+Another way to see if this has worked is by running:
 
 ```bash
 $ kubectl describe pod pod-http
@@ -113,6 +113,8 @@ Events:
 ```
 
 However, like 'kind' and metadata.name, there are other fields that you can't change, e.g. for a pod object, you can't change the containerPort. If you do then you'll get a forbidden error message.
+
+## Deployments
 
 This problem gets solved by making use of another type of object called [deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 
@@ -216,5 +218,12 @@ So the syntax is:
 ```text
 kubectl set image {object kind}/{object-name} {container-name}={image-name}
 ```
+
+### Deleting Deployments
+
+```bash
+kubectl delete deployments deployment-nginx
+```
+Notice that we run this command imperitively rather than doing it declaritevely by specifying the config file. 
 
 
