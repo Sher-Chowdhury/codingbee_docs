@@ -169,6 +169,17 @@ kubernetes                      10.96.0.1       <none>        443/TCP          4
 svc-nodeport-apache-webserver   10.100.173.40   <nodes>       3050:31000/TCP   7s        component=apache_webserver
 ```
 
+Notice that we had to run the apply command twice, once for each config file. If you have a lot of config files then that could become tedious. Luckily there's a way to apply all the configs in one command, and that is to just specify the directory that houses all the configs, e.g.:
+
+```bash
+$ kubectl apply -f ./configs
+pod "pod-httpd" created
+service "svc-nodeport-apache-webserver" created
+```
+
+
+
+
 Next, you need to find the ip address of your worker node, which you can find by running:
 
 ```bash
@@ -195,6 +206,15 @@ service "svc-nodeport-apache-webserver" deleted
 $ kubectl delete -f configs/pod-object-definition.yml
 pod "pod-httpd" deleted
 ```
+
+Or alternatively, delete all these objects with a single command like this:
+
+```bash
+$ kubectl delete -f ./configs
+pod "pod-httpd" deleted
+service "svc-nodeport-apache-webserver" deleted
+```
+
 
 ## References
 
