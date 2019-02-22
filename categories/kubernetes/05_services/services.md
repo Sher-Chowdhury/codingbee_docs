@@ -125,6 +125,8 @@ Fri Feb 22 17:21:23 UTC 2019
 .
 ...etc
 ```
+Note, I noticed there is a lag in getting the logs for some reason. So give it a few mins before trying this command. Also notice that I also specified the -c (container) flag followed by the container name. That's only required if you have a multi-container pod, otherwise you can leave it out. 
+
 
 At this point we've only provided pod-to-pod related networking. So at this point we won't be able to access the service externally (e.g. from our macbook). So to fix that, we can just create an aditional service object, but this time as a nodeport service:
 
