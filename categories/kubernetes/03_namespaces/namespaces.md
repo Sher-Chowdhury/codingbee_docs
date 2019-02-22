@@ -121,4 +121,8 @@ NAME                                CLUSTER-IP      EXTERNAL-IP   PORT(S)       
 svc/svc-nodeport-apache-webserver   10.109.20.222   <nodes>       3050:31000/TCP   1m
 ```
 
-You always have to specify namespace flag in the command line flag when you organise all your objects using them. However we'll stick to using the default namespace, just for convenience.
+You always have to specify namespace flag in the command line flag when you organise all your objects using them. However we'll stick to using the default namespace, just for convenience. If you want to delete a namespace and all the objects inside it, do:
+
+```bash
+kubectl get pods --namespace=codingbee-hello-world
+```
