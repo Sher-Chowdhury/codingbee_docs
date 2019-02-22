@@ -1,18 +1,18 @@
 # pods
 
-So far we've done a quick hello world example. However the pod object definitions can have other features, that are quite similar to docker/docker-compose. 
+So far we've done a quick hello world example. However the pod object definitions can have other features, that are quite similar to docker/docker-compose.
 
 ## Volumes
 
 There are different types of storage options available in Kubernetes, they are:
 
-1. [Volumes](https://kubernetes.io/docs/concepts/storage/volumes) - This is used for storing pod-level non-persistant (ephemeral) data. If container inside pod dies and gets rebuilt, then the data persists. But if whole pod dies, then the data in the volume gets wiped out. You can think of these volumes as living inside a pod. 
-2. [Persistent Volumes - aka PV](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) - this is a volume that is persistent even if/when the pod dies. Persistent Volumes lives outside the pod. 
+1. [Volumes](https://kubernetes.io/docs/concepts/storage/volumes) - This is used for storing pod-level non-persistant (ephemeral) data. If container inside pod dies and gets rebuilt, then the data persists. But if whole pod dies, then the data in the volume gets wiped out. You can think of these volumes as living inside a pod.
+2. [Persistent Volumes - aka PV](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) - this is a volume that is persistent even if/when the pod dies. Persistent Volumes lives outside the pod.
 3. [Persistent Volume Claims - aka PVC](????????????)
 
 ### hostPath volumes
 
-hostPath volumes are not often used, but is a good example for learning purposes. hostPath let's you share a worker node's directory with a container inside a pod. 
+hostPath volumes are not often used, but is a good example for learning purposes. hostPath let's you share a worker node's directory with a container inside a pod.
 
 To try this, we first need to create a folder and put some content in it. We have to do this on the worker node. In our case our worker node is a minikube vm, so we ssh into it like this:
 
@@ -31,7 +31,7 @@ echo 'hostPath example' > /tmp/webcontent/index.html
 Then back on our macbook we apply and test:
 
 ```bash
-$ kubectl apply -f configs/hostPath-example/pod-object-definition.yml 
+$ kubectl apply -f configs/hostPath-example/pod-object-definition.yml
 pod "pod-httpd" created
 $ curl http://192.168.99.100:31000
 hostPath example
@@ -57,8 +57,6 @@ goodbye
 #
 ```
 
-
-
 ## Command
 
 In your pod definitions you can specify a particular command to run. Here's an example:
@@ -71,8 +69,8 @@ metadata:
   name: pod-httpd
   labels:
     component: apache_webserver
-spec: 
-  volumes: 
+spec:
+  volumes:
     - name: webcontent    # here we specify the name of the volume
       emptyDir: {}        # the '{}' is yaml syntax to represent an empty dictionary
   containers:
@@ -99,7 +97,6 @@ spec:
 ```
 
 In this example, we will actually build a 2-container pod. These pods are sharing a storage volume (which we called webcontent). This volumen is of the type 'emptyDir', which in kubernetes world, is ephemeral storage (it get's deleted when the pod is deleted). cntr-centos is running a custom command, which is effectively updating the index.html file that's being used by the other container. Since it's now a 2-container pod, you have to wait a few seconds longer for the pod to become ready:
-
 
 ```bash
 $ kubectl apply -f configs/command-example/pod-object-definition.yml
@@ -132,4 +129,4 @@ Fri Feb 22 11:25:09 UTC 2019
 
 One thing to note, is that the command you specify needs to be a long running command. Otherwise  the container will keep shutting down inside the pod, and kubernetes will then think the container has failed will keep restarting that container again.
 
-A possible use case for using emptyDir type of volume is where you have a primary container whose logs you want to keep track of in which case, you would have a secondary log forwarding container, e.g. a filebeat container, and you share the //var/log contents from the primary container with the filebeat container. 
+A possible use case for using emptyDir type of volume is where you have a primary container whose logs you want to keep track of in which case, you would have a secondary log forwarding container, e.g. a filebeat container, and you share the //var/log contents from the primary container with the filebeat container.
