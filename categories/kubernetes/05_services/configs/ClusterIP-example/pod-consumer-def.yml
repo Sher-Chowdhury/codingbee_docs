@@ -12,7 +12,7 @@ spec:
       command: ["/bin/bash", "-c"]
       args:
         - while true ; do
-            curl https://xxxx ;
             date ;
-            sleep 5 ;
+            curl -s http://svc-clusterip-httpd.default.svc.cluster.local:4000 ;
+            sleep 10 ;
           done

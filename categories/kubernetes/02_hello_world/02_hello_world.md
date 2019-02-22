@@ -215,6 +215,9 @@ pod "pod-httpd" deleted
 service "svc-nodeport-apache-webserver" deleted
 ```
 
+## Defining multiple objects in a single config file
+
+In this walkthrough we ended up with 2 config files. However you can store 2 or more objects in a single config file. All you need to do is to copy all the definitions into a single file, and seperate them out using by inserting the yaml-new-document-syntax '---' between them. It's really a preference on whether or not to use this approach. 
 
 ## References
 
