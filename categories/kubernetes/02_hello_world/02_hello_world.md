@@ -177,9 +177,6 @@ pod "pod-httpd" created
 service "svc-nodeport-apache-webserver" created
 ```
 
-
-
-
 Next, you need to find the ip address of your worker node, which you can find by running:
 
 ```bash
@@ -217,7 +214,7 @@ service "svc-nodeport-apache-webserver" deleted
 
 ## Defining multiple objects in a single config file
 
-In this walkthrough we ended up with 2 config files. However you can store 2 or more objects in a single config file. All you need to do is to copy all the definitions into a single file, and seperate them out using by inserting the yaml-new-document-syntax '---' between them. It's really a preference on whether or not to use this approach. 
+In this walkthrough we ended up with 2 config files. However you can store 2 or more objects in a single config file. All you need to do is to copy all the definitions into a single file, and seperate them out using by inserting the yaml-new-document-syntax '---' between them. It's really a preference on whether or not to use this approach.
 
 ## References
 

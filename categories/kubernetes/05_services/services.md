@@ -4,13 +4,11 @@ In Kubernetes, 'services' is actually all about networking. In Docker world, whe
 
 There are [4 main types of of services](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types).
 
-
 ## Nodeport Service Type
 
 We have already created this type of service in earlier examples. The NodePort service type is specifically used for making a pod accessible externally. E.g. from another VM, or another pod from another Kubecluster. Nodeport can't be used for pod-to-pod communication where both pods are running on the same kube cluster.
 
 Nodeport is actually rarely used in production, and is mainly used for development purposes only.
-
 
 ## ClusterIP Service Type
 
@@ -45,7 +43,7 @@ spec:
   type: ClusterIP
   ports:
     - port: 4000       # Other pods will need to access the httpd pod via this port number
-      targetPort: 80   # This service object will forward incoming 4000 port requests to this port. 
+      targetPort: 80   # This service object will forward incoming 4000 port requests to this port.
   selector:
     component: apache_webserver   # this is how we link this service to our httpd pod
 ```
@@ -83,8 +81,8 @@ You can find the '.svc.cluster.local' in the centos container's /etc/resolv.conf
 
 ```bash
 $ minikube ssh
-                         _             _            
-            _         _ ( )           ( )           
+                         _             _
+            _         _ ( )           ( )
   ___ ___  (_)  ___  (_)| |/')  _   _ | |_      __  
 /' _ ` _ `\| |/' _ `\| || , <  ( ) ( )| '_`\  /'__`\
 | ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )(  ___/
