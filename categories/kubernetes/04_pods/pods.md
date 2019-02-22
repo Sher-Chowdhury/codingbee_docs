@@ -4,7 +4,11 @@ So far we've done a quick hello world example. However the pod object definition
 
 ## Volumes
 
-There are different types of storage [Kubernetes volumes](https://kubernetes.io/docs/concepts/storage/volumes) that you can attach to the containers inside your pods. 
+There are different types of storage options available in Kubernetes, they are:
+
+1. [Volumes](https://kubernetes.io/docs/concepts/storage/volumes) - This is used for storing pod-level non-persistant (ephemeral) data. If container inside pod dies and gets rebuilt, then the data persists. But if whole pod dies, then the data in the volume gets wiped out. You can think of these volumes as living inside a pod. 
+2. [Persistent Volumes - aka PV](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) - this is a volume that is persistent even if/when the pod dies. Persistent Volumes lives outside the pod. 
+3. [Persistent Volume Claims - aka PVC](????????????)
 
 ### hostPath volumes
 
