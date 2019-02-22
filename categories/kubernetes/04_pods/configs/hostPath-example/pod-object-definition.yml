@@ -8,12 +8,14 @@ metadata:
 spec: 
   volumes: 
     - name: webcontent    # here we specify the name of the volume
-      emptyDir: {}        # this specifies the type of volume
+      hostPath:
+        path: /tmp/webcontent  # need to ensure this folder exists on your worker node, or minikube vm 
+        type: Directory
   containers:
     - name: cntr-httpd
       image: httpd
       volumeMounts:
-        name: webcontent
-        mountPath: /usr/local/apache2/htdocs
+        - name: webcontent
+          mountPath: /usr/local/apache2/htdocs
       ports:
         - containerPort: 80
