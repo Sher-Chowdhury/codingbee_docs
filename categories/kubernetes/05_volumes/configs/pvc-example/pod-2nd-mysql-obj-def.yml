@@ -1,0 +1,23 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-mysql-db-2
+  labels:
+    component: 2nd-mysql_db_server
+spec: 
+  volumes: 
+    - name: db-data-storage 
+      persistentVolumeClaim:
+        claimName: pvc-db  # nee
+  containers:
+    - name: cntr-mysql-db
+      image: mysql
+      env:
+        - name: "MYSQL_ROOT_PASSWORD" # This is something that's needed by the mysql image in particular.
+          value: "password123"  # always bad idea to store passwords like this. better methods are covered later
+      volumeMounts:
+        - name: db-data-storage      # this needs to match the volume name given above.
+          mountPath: /var/lib/mysql
+      ports:
+        - containerPort: 3306
