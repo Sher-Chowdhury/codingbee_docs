@@ -103,7 +103,7 @@ spec:
         # this args gets parsed as a single line, so have to end relevant line with a ';'
 ```
 
-In this example, we will actually build a 2-container pod. These pods are sharing a storage volume (which we called webcontent). This volumen is of the type 'emptyDir', which in kubernetes world, is ephemeral storage (it get's deleted when the pod is deleted). cntr-centos is running a custom command, which is effectively updating the index.html file that's being used by the other container. Since it's now a 2-container pod, you have to wait a few seconds longer for the pod to become ready:
+In this example, we will actually build a 2-container pod. These 2 containers are sharing a storage volume (which we called webcontent). This volume is of the type 'emptyDir', which in kubernetes world, is ephemeral storage (it get's deleted when the pod is deleted). cntr-centos is running a custom command, which is effectively updating the index.html file that's being used by the other container. Since it's now a 2-container pod, you have to wait a few seconds longer for the pod to become ready:
 
 ```bash
 $ kubectl apply -f configs/command-example/pod-object-definition.yml
