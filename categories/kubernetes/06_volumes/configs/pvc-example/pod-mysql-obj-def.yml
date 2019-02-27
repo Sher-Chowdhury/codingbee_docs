@@ -13,7 +13,7 @@ spec:
   containers:
     - name: cntr-mysql-db
       image: mysql
-      env:
+      env:    # this is how to pass environment variables to a container, see: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#envvar-v1-core
         - name: "MYSQL_ROOT_PASSWORD" # This is something that's needed by the mysql image in particular.
           value: "password123"  # always bad idea to store passwords like this. better methods are covered later
       volumeMounts:
