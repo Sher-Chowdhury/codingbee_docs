@@ -9,10 +9,13 @@ spec:
   containers:
     - name: cntr-mysql-db
       image: mysql
-      env:                       # we use 'env' section to feed in environments variables
-        - name: MYSQL_DATABASE      # this is an optional environment variable
+      env:
+        - name: MYSQL_DATABASE
           value: dummy_db
-        - name: MYSQL_ROOT_PASSWORD  # this is a mandatory environment variable
-          value: password123
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom: 
+            secretKeyRef: 
+              name: mysql-secrets      # this is the name of the object that holds one or more key-value pairs. 
+              key: MysqlRootPassword   # this is the name of the key, whose value we're interested in. 
       ports:
         - containerPort: 3306
