@@ -6,7 +6,7 @@ There are a few steps involved in this process:
 
 1. Install [brew](https://brew.sh/) - this is a MacOS based package installer. 
 2. run: `brew install kubectl` to install kubectl
-3. run: `brew cask install kubectl` to install virtualbox
+3. run: `brew cask install virtualbox` to install virtualbox
 4. run: `brew cask install minikube` to install minikube
 
 After minikube is installed, next check it's version:
@@ -47,7 +47,7 @@ $ minikube start
 🏄  Done! Thank you for using minikube!
 ```
 
-If you open up the virtualbox gui, you should a new vm called minikube running. If check status, you should now see:
+If you open up the virtualbox gui, you should a new vm called minikube running. If you check the status again, you should now see:
 
 ```bash
 $ minikube status

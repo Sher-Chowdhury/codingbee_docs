@@ -4,8 +4,6 @@ In this walkthrough we will get an Apache web server (container) running inside 
 
 **Pod:** A pod is the fundamental building block in the world of Kubernetes. It is a group of one or more Containers, tied together for the purposes of administration and networking
 
-**Deployment:** A Kubernetes Deployment checks on the health of your Pod and restarts the Pod’s Container if it terminates. Deployments are the recommended way to manage the creation and scaling of Pods.
-
 **Service:** This is used to set up networknig in our kube cluster. If a running pod exposes a web based gui, then a Service object needs to be set up to make that pod's gui externally accessible.
 
 At the moment, we don't have any pod of deployments objects (of any type) in our kubecluster:
@@ -13,28 +11,24 @@ At the moment, we don't have any pod of deployments objects (of any type) in our
 ```bash
 $ kubectl get pods
 No resources found.
-$ kubectl get deployments
-No resources found.
 ```
 
-In kubernetes, you create an object by first creating a yaml config file, and then feeding that config file into kubectl.
-
-So here's our pod object file's yaml content:
+In kubernetes, you create an object by first creating a yaml config file, and then feeding that config file into kubectl. So here's our pod object file's yaml content:
 
 ```yaml
-apiVersion: v1
-kind: Pod
+---
+apiVersion: v1      # see https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/
+kind: Pod           # type of object that's defined in this file
 metadata:
-  name: client-pod
+  name: pod-httpd # name of the pod to be created. 
   labels:
-    component: web
-spec:
+    component: apache_webserver  # this tag is added to help this object to link to the service object. 
+spec: 
   containers:
-    - name: client
-      image: stephengrider/multi-client
+    - name: cntr-httpd  # name of the container that will reside in the pod
+      image: httpd    # using the official apache image from docker hub
       ports:
-        - containerPort: 3000
-
+        - containerPort: 80  # what port the container will be listening on
 ```
 
 And here's what our service object file's content:
@@ -90,7 +84,7 @@ This link is for version v1.13. But in your case you need go to the link, that's
 
 ```bash
 $ kubectl version
-Client Version: version.Info{Major:"1", Minor:"6", GitVersion:"v1.6.2", GitCommit:"477efc3cbe6a7effca06bd1452fa356e2201e1ee", GitTreeState:"clean", BuildDate:"2017-04-19T20:33:11Z", GoVersion:"go1.7.5", Compiler:"gc", Platform:"darwin/amd64"}
+Client Version: version.Info{Major:"1", Minor:"13", GitVersion:"v1.13.3", GitCommit:"721bfa751924da8d1680787490c54b9179b1fed0", GitTreeState:"clean", BuildDate:"2019-02-04T04:48:03Z", GoVersion:"go1.11.5", Compiler:"gc", Platform:"darwin/amd64"}
 Server Version: version.Info{Major:"1", Minor:"13", GitVersion:"v1.13.3", GitCommit:"721bfa751924da8d1680787490c54b9179b1fed0", GitTreeState:"clean", BuildDate:"2019-02-01T20:00:57Z", GoVersion:"go1.11.5", Compiler:"gc", Platform:"linux/amd64"}
 ```
 
@@ -149,7 +143,7 @@ Notice, we already have a service called 'kubernetes'. This came as default and 
 Now let's create the objects, starting with the pod object:
 
 ```bash
-$ kubectl apply -f configs/pod-object-definition.yml
+$ kubectl apply -f configs/pod-httpd-obj-def.yml
 pod "pod-httpd" created
 
 $ kubectl get -o wide pods
@@ -160,7 +154,7 @@ pod-httpd   1/1       Running   0          8s        172.17.0.5   minikube
 Notice here that we used the '-o wide' just to get some verbose info. Next let's do the service object:
 
 ```bash
-$ kubectl apply -f configs/service-object-definition.yml
+$ kubectl apply -f configs/svc-nodeport-obj-def.yml
 service "svc-nodeport-apache-webserver" created
 
 $ kubectl get -o wide services
@@ -169,13 +163,42 @@ kubernetes                      10.96.0.1       <none>        443/TCP          4
 svc-nodeport-apache-webserver   10.100.173.40   <nodes>       3050:31000/TCP   7s        component=apache_webserver
 ```
 
-Notice that we had to run the apply command twice, once for each config file. If you have a lot of config files then that could become tedious. Luckily there's a way to apply all the configs in one command, and that is to just specify the directory that houses all the configs, e.g.:
+Another way to get more details info is by using the 'describe' subcommand:
+
+```bash
+kubectl describe pods pod-httpd
+Name:               pod-httpd
+Namespace:          default
+Priority:           0
+PriorityClassName:  <none>
+.
+.
+...etc 
+
+
+kubectl describe service svc-nodeport-apache-webserver
+Name:                     svc-nodeport-apache-webserver
+Namespace:                default
+Labels:                   <none>
+.
+.
+...etc
+```
+
+
+
+
+
+Notice that we had to run the apply command twice, once for each config file. Luckily there's a way to apply all the configs in one command, and that is to just specify the directory that houses all the configs, e.g.:
 
 ```bash
 $ kubectl apply -f ./configs
 pod "pod-httpd" created
 service "svc-nodeport-apache-webserver" created
 ```
+
+
+
 
 Next, you need to find the ip address of your worker node, which you can find by running:
 
@@ -191,20 +214,9 @@ $ curl http://192.168.99.100:31000
 <html><body><h1>It works!</h1></body></html>
 ```
 
-Note, when you access a pod like this, you would normally do it via a loadbalancer that sits in front of the worker nodes.
-
 ## Deleting objects
 
-To delete the objects we created, run:
-
-```bash
-$ kubectl delete -f configs/service-object-definition.yml
-service "svc-nodeport-apache-webserver" deleted
-$ kubectl delete -f configs/pod-object-definition.yml
-pod "pod-httpd" deleted
-```
-
-Or alternatively, delete all these objects with a single command like this:
+You can delete objects individually, or collectively. Here's how to do it collectively:
 
 ```bash
 $ kubectl delete -f ./configs
@@ -215,6 +227,70 @@ service "svc-nodeport-apache-webserver" deleted
 ## Defining multiple objects in a single config file
 
 In this walkthrough we ended up with 2 config files. However you can store 2 or more objects in a single config file. All you need to do is to copy all the definitions into a single file, and seperate them out using by inserting the yaml-new-document-syntax '---' between them. It's really a preference on whether or not to use this approach.
+
+
+## Updating objects
+
+Kubernetes is smart enough to identify which objects have been created by a particular config file. It does so by using the configs about the 'kind' and metadata.name info. Config's filename itself doesn't matter, as long as it ends with the .yml/.yaml extension. You can make changes to the yaml files (as long as it isn't changing the kind or metadata.name fields) and just apply them again for the changes to take affect.
+
+That's a good thing because it means you can modify an existing object by editing it's corresponding config file and reapply it. However, since the 'kind' and 'metadata.name' are used for mapping yaml configs to their respective objects it means that changing these will make kubernetes think that they are new objects. In my example I'm going to change the pod's image name from httpd to nginx:
+
+```yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-httpd
+  labels:
+    component: apache_webserver
+spec: 
+  containers:
+    - name: cntr-httpd
+      image: nginx       # this was httpd back when this object was created. 
+      ports:
+        - containerPort: 80
+
+```
+
+Now we reapply the changes:
+
+```bash
+$ kubectl apply -f configs/pod-object-definition.yml 
+pod "pod-httpd" configured
+```
+
+This time we get a configured message. This means that kubernetes hasn't created anything new, just updated one or more existing objects. Now we can retest:
+
+```bash
+$ curl http://192.168.99.100:31000
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+```
+
+However, like 'kind' and metadata.name, there are other fields that you can't change, e.g. for a pod object, you can't change the containerPort. If you do then you'll get a forbidden error message.
 
 ## References
 
