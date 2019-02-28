@@ -1,0 +1,18 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:      # this is something specific to ingress objects. It lets you specify some more general ingress configurations. 
+    kubernetes.io/ingress.class: nginx  # this is how we tell k8s to build ingress controller using the nginx project. 
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+spec: 
+  rules: 
+    - http:       # this enables listening on port 80, i.e. http port
+        paths:
+          - path: /
+            backend: 
+              serviceName: svc-clusterip-httpd
+              servicePort: 4000

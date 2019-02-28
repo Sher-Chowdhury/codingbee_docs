@@ -1,20 +1,21 @@
 # Services
 
-In Kubernetes, 'services' is actually all about networking. In Docker world, when you use docker compose, all the networking is done for us. However that's not the case when it comes to kubernetes. To setup networking in Kubernetes, you need to create 'service' objects.
+In Kubernetes, 'services' is actually all about networking. In Docker world, when you use docker-compose, all the networking is done for you automatically behind the scenes. However that's not the case when it comes to kubernetes. To setup networking in Kubernetes, you need to create 'service' objects.
 
 There are [4 main types of of services](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types).
 
+
 ## Nodeport Service Type
 
-We have already created this type of service in earlier examples. The NodePort service type is specifically used for making a pod accessible externally. E.g. from another VM, or another pod from another Kubecluster. Nodeport can't be used for pod-to-pod communication where both pods are running on the same kube cluster.
+We have already created this type of service in earlier examples. The NodePort service type is specifically used for making a pod accessible externally. E.g. from another VM, or another pod from another Kubecluster. Nodeport can't be used for pod-to-pod communication where both pods are running in the same kube cluster.
 
 Nodeport is actually rarely used in production, and is mainly used for development purposes only.
 
 ## ClusterIP Service Type
 
-This service type is specifically designed for setting up internal pod-to-pod communications inside a kube cluster.
+This service type is specifically designed for setting up inter pod-to-pod communications inside a kube cluster.
 
-For example, let's say we have 2 pods, one is generic httpd pod, and the other is a generic centos pod. Let's say we want to be able to curl from the centos pod, to the httpd pod. To be able to do this, you need to create a ClusterIP service to sit in front of the httpd pod so that it can accept curl requests coming from other pods in the kubecluster. So first we build the httpd pod:
+For example, let's say we have 2 pods, one is generic httpd pod, and the other is a generic centos pod. Let's say we want to be able to curl from the centos pod, to the httpd pod. To be able to do this, you need to create a ClusterIP service to sit in front of the httpd pod so that it can accept curl requests coming from other pods in the same kubecluster. So first we build the httpd pod:
 
 ```yaml
 ---
@@ -167,3 +168,131 @@ pod "pod-httpd-provider" deleted
 service "svc-clusterip-httpd" deleted
 service "svc-nodeport-apache-webserver" deleted
 ```
+
+
+
+## LoadBalancer Service Type
+
+This type of service is used for making pods externally accessible (using cloud specific technologies). E.g. if your kubecluster is running on AWS, and want to make a group of identical pods externally accessible, then you create a loadbalancer object, and that object will end up creating an AWS ELB behind the scenes to route traffic to the pods. 
+
+LoadBalancer is slowly getting deprecated and is being replaced by the Ingress Service type. 
+
+
+## Ingress Service Type
+
+This type of service is used for making pods externally accessible. It uses nginx behind the scenes, and it has it's own github repo called [ingress-nginx](https://github.com/kubernetes/ingress-nginx). Like the LoadBalancer service type, the setup of Ingress is also dependent on which cloud platform you use.
+
+
+When you create an ingress-nginx object, you are effectively creating an 'Ingress-controller'. The word 'controller' is used in Kubernetes to refer to objects that doesn't actually to any heavy-lifting low level work, e.g. it doesn't run any containers like pods do, or route traffic, like nodeport service objects do. Instead a controller object creates other objects that does all the legwork, and it ensures the state of those objects. Therefore a controller builds other objects to reach a desired state, and then constantly monitors+maintains that desired state. 
+
+Based on that, the Ingress Service object is actually a type of controller object. So what objects does an Ingress controller build? It basically builds
+
+
+ - an nginx-revproxy pod that's specifically been optimised to work really well for routing external traffic to pods in the kubecluster. In what way is it optimised, here's a couple of examples:
+   - The nginx pod doesn't need a clusterIP service setup to a target group of pods, instead it can communicate/loadbalance to with these pods directly. I.e. the ngnix pod to some extent has clustIP service abilities builtin. 
+   - it can setup sticky sessions to pods, where needed. 
+ - Cloud specific resources, e.g. if kubecluster is running on AWS, then it builds AWS ELBs. 
+
+
+
+### Setting up Ingress on Minikube
+
+The [Nginx official Ingress](https://kubernetes.github.io/ingress-nginx/) Documentation covers how to set up the Ingress object. First go to the [Ingress deploy](https://kubernetes.github.io/ingress-nginx/deploy/) section. Then perform the [generic deployloyment](https://kubernetes.github.io/ingress-nginx/deploy/#prerequisite-generic-deployment-command), this part is irrespective of what cloud platform you're using. 
+
+```bash
+$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/mandatory.yaml
+namespace/ingress-nginx created
+configmap/nginx-configuration created
+configmap/tcp-services created
+configmap/udp-services created
+serviceaccount/nginx-ingress-serviceaccount created
+clusterrole.rbac.authorization.k8s.io/nginx-ingress-clusterrole created
+role.rbac.authorization.k8s.io/nginx-ingress-role created
+rolebinding.rbac.authorization.k8s.io/nginx-ingress-role-nisa-binding created
+clusterrolebinding.rbac.authorization.k8s.io/nginx-ingress-clusterrole-nisa-binding created
+deployment.apps/nginx-ingress-controller created
+```
+
+This ends up creating a new namespace and creates objects inside that namespace.
+
+```bash
+$ kubectl get all --namespace=ingress-nginx
+NAME                                            READY   STATUS    RESTARTS   AGE
+pod/nginx-ingress-controller-797b884cbc-qddzz   1/1     Running   0          8m7s
+
+NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/nginx-ingress-controller   1/1     1            1           8m7s
+
+NAME                                                  DESIRED   CURRENT   READY   AGE
+replicaset.apps/nginx-ingress-controller-797b884cbc   1         1         1       8m7s
+$ kubectl get configmap --namespace=ingress-nginx
+NAME                              DATA   AGE
+ingress-controller-leader-nginx   0      7m49s
+nginx-configuration               0      8m35s
+tcp-services                      0      8m35s
+udp-services                      0      8m35s
+```
+
+Next we following the instructions to [enable ingress for minkube](https://kubernetes.github.io/ingress-nginx/deploy/#minikube)
+
+```bash
+$ minikube addons enable ingress
+✅  ingress was successfully enabled
+```
+
+Now we create our test environment.
+
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:      # this is something specific to ingress objects. It lets you specify some more general ingress configurations. 
+    kubernetes.io/ingress.class: nginx  # this is how we tell k8s to build ingress controller using the nginx project. 
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/ssl-redirect: "false"
+spec: 
+  rules: 
+    - http:       # this enables listening on port 80, i.e. http port
+        paths:
+          - path: /
+            backend:
+              serviceName: svc-clusterip-httpd
+              servicePort: 4000
+```
+
+Applying this yaml results in:
+
+```bash
+$ kubectl apply -f configs/ingress-example/ingress-obj-def.yaml 
+ingress.extensions/ingress-service created
+
+$ kubectl get ingress
+NAME              HOSTS   ADDRESS   PORTS   AGE
+ingress-service   *                 80      4s
+```
+
+
+
+
+
+This is to do with:
+
+
+https://github.com/kubernetes/ingress-nginx
+
+https://kubernetes.github.io/ingress-nginx/
+
+
+https://www.joyfulbikeshedding.com/blog/2018-03-26-studying-the-kubernetes-ingress-system.html
+
+https://itnext.io/an-illustrated-guide-to-kubernetes-networking-part-1-d1ede3322727
+https://itnext.io/an-illustrated-guide-to-kubernetes-networking-part-2-13fdc6c4e24c
+https://itnext.io/an-illustrated-guide-to-kubernetes-networking-part-3-f35957784c8e
+
+https://medium.com/@awkwardferny/getting-started-with-kubernetes-ingress-nginx-on-minikube-d75e58f52b6c
+
+https://www.reddit.com/r/kubernetes/comments/8x1am5/get_automatic_https_with_lets_encrypt_and/
+
+https://kubedex.com/ingress/
