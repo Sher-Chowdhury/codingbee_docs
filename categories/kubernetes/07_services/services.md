@@ -248,12 +248,13 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: ingress-service
-  annotations:      # this is something specific to ingress objects. It lets you specify some more general ingress configurations. 
-    kubernetes.io/ingress.class: nginx  # this is how we tell k8s to build ingress controller using the nginx project. 
+  annotations:      # this is something specific to ingress objects. It lets you customise your ingress setup.
+    kubernetes.io/ingress.class: nginx  # this is how we tell k8s to build ingress controller using the nginx project.
     nginx.ingress.kubernetes.io/rewrite-target: /
-    ingress.kubernetes.io/ssl-redirect: "false"
-spec: 
-  rules: 
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+spec:
+  rules:
     - http:       # this enables listening on port 80, i.e. http port
         paths:
           - path: /
@@ -261,6 +262,8 @@ spec:
               serviceName: svc-clusterip-httpd
               servicePort: 4000
 ```
+
+There are a lot of [Ingress Controller Annotation settings](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations) available that allows you to customise your Kubernetes setup. 
 
 Applying this yaml results in:
 
@@ -273,9 +276,158 @@ NAME              HOSTS   ADDRESS   PORTS   AGE
 ingress-service   *                 80      4s
 ```
 
+Now we can test it by running:
+
+```bash
+$ minikube ip
+192.168.99.102
+
+$ curl http://192.168.99.102
+<html><body><h1>It works!</h1></body></html>
+```
+
+The important thing here is that we no longer need to specify a port number in the url. 
+
+
+Noticed that we disabled some ssl setting annotations in the yaml file. That's just to avoid getting unwanted redirect messages, or insecure ssl certs message, which can still be suppressed using -Lk curl flags as shown below: 
+
+
+```bash
+$ curl http://192.168.99.102
+<html>
+<head><title>308 Permanent Redirect</title></head>
+<body>
+<center><h1>308 Permanent Redirect</h1></center>
+<hr><center>nginx/1.15.6</center>
+</body>
+</html>
+
+
+$ curl -L http://192.168.99.102
+curl: (60) SSL certificate problem: unable to get local issuer certificate
+More details here: https://curl.haxx.se/docs/sslcerts.html
+
+curl performs SSL certificate verification by default, using a "bundle"
+ of Certificate Authority (CA) public keys (CA certs). If the default
+ bundle file isnt adequate, you can specify an alternate file
+ using the --cacert option.
+If this HTTPS server uses a certificate signed by a CA represented in
+ the bundle, the certificate verification probably failed due to a
+ problem with the certificate (it might be expired, or the name might
+ not match the domain name in the URL).
+If you'd like to turn off curl's verification of the certificate, use
+ the -k (or --insecure) option.
+HTTPS-proxy has similar options --proxy-cacert and --proxy-insecure.
+
+
+$ curl -Lk  http://192.168.99.102
+<html><body><h1>It works!</h1></body></html>
+
+```
+
+## Accessing different pods based on different urls
+
+So far we've seen how we can access one pod via ingress. However another common scenario is that you want to access a particular pod based on the url. Here's an example of a ingress file to do something like that:
+
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-service
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+spec: 
+  rules: 
+    - host: httpd-demo.com    # we specify a domain name this time. 
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: svc-clusterip-httpd
+              servicePort: 4000
+    - host: nginx-demo.com          # we specify a domain name this time. 
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: svc-clusterip-nginx
+              servicePort: 5000
+```
+
+Here we specify to rules. One that forwards traffic to a httpd pod, and the other to an nginx pod. 
+
+We also have to add these custom domains into our local hosts file:
+
+```bash
+$ echo "$(minikube ip)   nginx-demo.com" >> /etc/hosts
+$ echo "$(minikube ip)   httpd-demo.com" >> /etc/hosts
+```
+
+Now we apply the above configs:
+
+```bash
+$ kubectl apply -f configs/ingress-example2
+ingress.extensions/ingress-service created
+pod/pod-httpd-provider created
+pod/pod-nginx-provider created
+service/svc-clusterip-httpd created
+service/svc-clusterip-nginx created
+```
+
+Now notice that our nginx pod has whitelisted the following domains/hosts:
+
+```bash
+$ kubectl get ingress
+NAME              HOSTS                           ADDRESS   PORTS   AGE
+ingress-service   httpd-demo.com,nginx-demo.com             80      32s
+```
+
+Now we try this out:
+
+```bash
+$ curl -Lk  http://nginx-demo.com
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
 
 
 
+
+$ curl -Lk  http://httpd-demo.com
+<html><body><h1>It works!</h1></body></html>
+```
+
+Success!
+
+
+
+### Further Reading
 
 This is to do with:
 
