@@ -1,19 +1,19 @@
 # Kubernetes Hello World
 
+In this walkthrough we will get an Apache web server (container) running inside our kube cluster. In Kubernetes we build objects. There are different types of objects, here are the 2 types of objects we'll be building in this walkthrough:
 
-## Hello world
-In this walkthrough we will get an Apache web server (container) running inside our kube cluster. In Kubernetes we build objects. There are different types (aka kind) of objects, Pods, Services, Deployments,....etc. In our hello-world example we'll start by building a Pod object. 
+**Pod:** A pod is the fundamental building block in the world of Kubernetes. It is a group of one or more Containers, tied together for the purposes of administration and networking
 
-**Pod:** A pod is the fundamental building block in Kubernetes. A pod main purpose is to house one or more containers. At the moment, we don't have any pods in our kubecluster:
+**Service:** This is used to set up networknig in our kube cluster. If a running pod exposes a web based gui, then a Service object needs to be set up to make that pod's gui externally accessible.
+
+At the moment, we don't have any pod of deployments objects (of any type) in our kubecluster:
 
 ```bash
 $ kubectl get pods
 No resources found.
 ```
 
-
-
-In kubernetes, you create an object by first writing a yaml config file, and then feeding that config file into kubectl. So here's our pod object file's yaml content:
+In kubernetes, you create an object by first creating a yaml config file, and then feeding that config file into kubectl. So here's our pod object file's yaml content:
 
 ```yaml
 ---
@@ -22,144 +22,14 @@ kind: Pod           # type of object that's defined in this file
 metadata:
   name: pod-httpd # name of the pod to be created. 
   labels:
-    component: apache_webserver  # this tag is added to help this object to link to the service object.
-spec:
+    component: apache_webserver  # this tag is added to help this object to link to the service object. 
+spec: 
   containers:
     - name: cntr-httpd  # name of the container that will reside in the pod
       image: httpd    # using the official apache image from docker hub
       ports:
         - containerPort: 80  # what port the container will be listening on
 ```
-
-We'll cover how to construct these yaml files from scratch in the anatomy tutorial later on. For now all you need to know is that this yaml file will instruct kubectl to:
-
-1. create a pod object that consists of a single container.
-2. Build this container using the official docker hub [httpd](https://hub.docker.com/_/httpd) image.
-3. name the container 'cntr-httpd',
-4. and name the pod itself, 'pod-httpd'.
-5. note that the container will be listening on port 80
-6. Assign an arbitrary key/value label to the pod of key=component and value=apache_webserver. This label will come in useful later on.
-
-We wrote this yaml content into a file called, pod-httpd-obj-def.yml. It doesn't matter what you call the file, as long as it's meaningful to you. and ends with the yml/yaml suffix. Now let's create the object, using the apply command:
-
-
-```bash
-$ kubectl apply -f configs/pod-httpd-obj-def.yml
-pod "pod-httpd" created
-
-$ kubectl get -o wide pods
-NAME        READY     STATUS    RESTARTS   AGE       IP           NODE
-pod-httpd   1/1       Running   0          8s        172.17.0.5   minikube
-```
-
-Here we can see tha ta new pod has been created. The pod's name is 'pod-httpd' which is exactly the name we asked for in our yaml file's metadata.name setting. Tto get more detailed info about our pod, we can use the 'describe' subcommand:
-
-```bash
-kubectl describe pods pod-httpd
-Name:               pod-httpd
-Namespace:          default
-Priority:           0
-PriorityClassName:  <none>
-.
-.
-...etc
-```
-
-So far we've created a single pod with a single container inside that pod. This container is supposed to have the apache webserver running inside it. But how to do we verify that container's web service is definitely working? To properly verify this, we need to do a 2-step verification process:
-
-1. Verify that our container (and consequently our pod) is listening on port 80. E.g. by running something like:
-```bash
-nc -v http://localhost
-```
-2. Try and access our containers homepage, by running something like:
-```bash
-curl http://localhost
-```
-
-However if you open up a bash terminal on your macbook and tried these steps you'll find that neither of these commands will work at this stage. That's because you need to setup some networking inside your kubecluster to make your pod accessible by other pods in the kubecluster and/or make your pod externally accessible (e.g. from your macbook). We'll cover how to setup some quick-and-dirty networking in the next lesson.
-
-
-In the meantime there are some other tests you can perform, which is that you can still perform the above steps by running them from inside the container. To do that, you need to access your container's bash terminal. You can do that by using the exec command:
-
-```bash
-$ kubectl exec -it pod-httpd -c cntr-httpd /bin/bash
-root@pod-httpd:/usr/local/apache2#
-```
-
-This command is quite similar to the docker command. In case you want to access the bash terminal using the docker approach, then you can do that too, by sshing into the minikube vm. First you ssh into the minikube vm:
-
-```bash
-$ minikube ssh
-                         _             _
-            _         _ ( )           ( )
-  ___ ___  (_)  ___  (_)| |/')  _   _ | |_      __
-/' _ ` _ `\| |/' _ `\| || , <  ( ) ( )| '_`\  /'__`\
-| ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )(  ___/
-(_) (_) (_)(_)(_) (_)(_)(_) (_)`\___/'(_,__/'`\____)
-
-$
-```
-
-Then find the container name and login:
-
-```bash
-
-$ docker exec -it cntr-httpd /bin/bash
-Error: No such container: cntr-httpd
-$ docker container ls | grep cntr-httpd
-ea800e6dec23        httpd                                                            "httpd-foreground"       5 hours ago         Up 5 hours                                                                               k8s_cntr-httpd_pod-httpd_default_742bd105-3c4c-11e9-946d-0800271ef513_0
-$ docker exec -it ea800e6dec23 /bin/bash
-root@pod-httpd:/usr/local/apache2#
-```
-
-Once you're inside the container, you then need to install the nc and curl packages. The command you need to run various depending on the image you use, but in our case, we run:
-
-```bash
-apt-get update
-apt-get install netcat
-apt-get install curl
-```
-
-Now we run the verifation tests:
-
-```bash
-# nc -v localhost 80
-localhost [127.0.0.1] 80 (?) open
-
-
-root@pod-httpd:/usr/local/apache2# curl http://localhost
-<html><body><h1>It works!</h1></body></html>
-```
-
-Success!
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-**Service:** A service object is used to setup networking in our kube cluster. If a running pod exposes a web based gui, then a Service object needs to be set up to make that pod's gui externally accessible.
-
-
-
 
 And here's what our service object file's content:
 
@@ -188,6 +58,73 @@ spec:
                                  # that's how this object and the pod object links together.
 ```
 
+Refer to kubernetes docs for more info about [Service](https://kubernetes.io/docs/concepts/services-networking/service/) objects.
+
+## Anatomy of an Kubernetes object config file
+
+Notice, that all these config files have the following general yaml structure:
+
+```yaml
+apiVersion: xxx
+kind: xxxxx
+metadata:
+  {blah blah blah}
+spec:
+  {blah blah blah}
+```
+
+The apiVersion, kind, metadata, and spec, are the [required fields](https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#required-fields), for all kubernetes object files.
+
+**kind:** What type object that you want to make.
+
+**apiVersion:** The kubernetes api is rapidly evolving so the api is broken down into various parts. Your version choice depends on what 'kind' of object you want to define.  For example, if the kind is 'Pod' then this field needs to be set to 'v1'.
+
+You need to take a look at the [Kubernetes API Reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/) to work out what to set this for your chosen object type (kind). This reference doc is really useful have displays example yaml content for your chosen kind.
+This link is for version v1.13. But in your case you need go to the link, that's specified with the Major and Minor tag of Server Version in:
+
+```bash
+$ kubectl version
+Client Version: version.Info{Major:"1", Minor:"13", GitVersion:"v1.13.3", GitCommit:"721bfa751924da8d1680787490c54b9179b1fed0", GitTreeState:"clean", BuildDate:"2019-02-04T04:48:03Z", GoVersion:"go1.11.5", Compiler:"gc", Platform:"darwin/amd64"}
+Server Version: version.Info{Major:"1", Minor:"13", GitVersion:"v1.13.3", GitCommit:"721bfa751924da8d1680787490c54b9179b1fed0", GitTreeState:"clean", BuildDate:"2019-02-01T20:00:57Z", GoVersion:"go1.11.5", Compiler:"gc", Platform:"linux/amd64"}
+```
+
+You can also run the following to list out all the supported versions:
+
+```bash
+$ kubectl api-versions
+admissionregistration.k8s.io/v1beta1
+apiextensions.k8s.io/v1beta1
+apiregistration.k8s.io/v1
+apiregistration.k8s.io/v1beta1
+apps/v1
+apps/v1beta1
+apps/v1beta2
+authentication.k8s.io/v1
+authentication.k8s.io/v1beta1
+authorization.k8s.io/v1
+authorization.k8s.io/v1beta1
+autoscaling/v1
+autoscaling/v2beta1
+autoscaling/v2beta2
+batch/v1
+batch/v1beta1
+certificates.k8s.io/v1beta1
+coordination.k8s.io/v1beta1
+events.k8s.io/v1beta1
+extensions/v1beta1
+networking.k8s.io/v1
+policy/v1beta1
+rbac.authorization.k8s.io/v1
+rbac.authorization.k8s.io/v1beta1
+scheduling.k8s.io/v1beta1
+storage.k8s.io/v1
+storage.k8s.io/v1beta1
+v1
+```
+
+**metadata:** Data that helps uniquely identify the object. metadata.name is used to assign a name to the object. It's also used to link up objects together with the help of the metadata.labels data.
+
+**spec:** The content of this depends on the kind of object in question. Api specifies what structure+content this section should hold.
 
 ## Start creating the Kubernetes objects
 
@@ -201,7 +138,9 @@ NAME         CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
 kubernetes   10.96.0.1    <none>        443/TCP   3h
 ```
 
-Notice, we already have a service called 'kubernetes'. This came as default and is used by Kubernete for internal purposes only. Therefore you can ignore this service. Now let's create the objects, starting with the pod object:
+Notice, we already have a service called 'kubernetes'. This came as default and is used by Kubernete for internal purposes only. Therefore you can ignore this service.
+
+Now let's create the objects, starting with the pod object:
 
 ```bash
 $ kubectl apply -f configs/pod-httpd-obj-def.yml
