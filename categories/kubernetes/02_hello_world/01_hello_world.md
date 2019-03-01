@@ -1,7 +1,7 @@
 # Kubernetes Hello World
 
 
-## Hello world
+## Hello world - Part 1
 In this walkthrough we will get an Apache web server (container) running inside our kube cluster. In Kubernetes we build objects. There are different types (aka kind) of objects, Pods, Services, Deployments,....etc. In our hello-world example we'll start by building a Pod object. 
 
 **Pod:** A pod is the fundamental building block in Kubernetes. A pod main purpose is to house one or more containers. At the moment, we don't have any pods in our kubecluster:
@@ -79,14 +79,14 @@ curl http://localhost
 However if you open up a bash terminal on your macbook and tried these steps you'll find that neither of these commands will work at this stage. That's because you need to setup some networking inside your kubecluster to make your pod accessible by other pods in the kubecluster and/or make your pod externally accessible (e.g. from your macbook). We'll cover how to setup some quick-and-dirty networking in the next lesson.
 
 
-In the meantime there are some other tests you can perform, which is that you can still perform the above steps by running them from inside the container. To do that, you need to access your container's bash terminal. You can do that by using the exec command:
+In the meantime there are some more limited tests that you can still perform, that is that you still perform the nc+curl tests but from inside the container itself. To do that, you need to access your container's bash terminal. You can do that by using the exec command:
 
 ```bash
 $ kubectl exec -it pod-httpd -c cntr-httpd /bin/bash
 root@pod-httpd:/usr/local/apache2#
 ```
 
-This command is quite similar to the docker command. In case you want to access the bash terminal using the docker approach, then you can do that too, by sshing into the minikube vm. First you ssh into the minikube vm:
+This command is quite similar to the docker command. In case you want to access the bash terminal using the docker approach, then you can do that too, by ssh'ing into the minikube vm:
 
 ```bash
 $ minikube ssh
@@ -139,29 +139,13 @@ Success!
 
 
 
+## Hello World - Part 2
+
+We're now going to improve on our existing hello-world example by making our pod accessible directly from our macbook's web browser. To do this we need to set up some networking inside our kubecluster. To do this we need create objects of the type 'service'.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-**Service:** A service object is used to setup networking in our kube cluster. If a running pod exposes a web based gui, then a Service object needs to be set up to make that pod's gui externally accessible.
-
-
-
-
-And here's what our service object file's content:
+**Service:** A service object is used to setup networking in our kube cluster. If a running pod exposes a web based gui, then a Service object needs to be set up to make that pod's gui externally accessible. And here's our service object file's content:
 
 ```yaml
 apiVersion: v1
@@ -188,31 +172,15 @@ spec:
                                  # that's how this object and the pod object links together.
 ```
 
-
-## Start creating the Kubernetes objects
-
-First let's get the current status:
+There are different types of service objects, in our case we are creating a NodePort type service. NodePort services are quite crude and isn't recommended in a production kubecluster, but we're using it here because it's the easiest service type to understand for a beginner. Before we create our service object, let's first let's first see what services we currenlty have:
 
 ```bash
-$ kubectl get pods
-No resources found.
 $ kubectl get services
 NAME         CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
 kubernetes   10.96.0.1    <none>        443/TCP   3h
 ```
 
-Notice, we already have a service called 'kubernetes'. This came as default and is used by Kubernete for internal purposes only. Therefore you can ignore this service. Now let's create the objects, starting with the pod object:
-
-```bash
-$ kubectl apply -f configs/pod-httpd-obj-def.yml
-pod "pod-httpd" created
-
-$ kubectl get -o wide pods
-NAME        READY     STATUS    RESTARTS   AGE       IP           NODE
-pod-httpd   1/1       Running   0          8s        172.17.0.5   minikube
-```
-
-Notice here that we used the '-o wide' just to get some verbose info. Next let's do the service object:
+The 'kubernetes' service comes as default in an Kubernete install and is used for internal purposes only. Therefore you can ignore this service. Now let's create the service object:
 
 ```bash
 $ kubectl apply -f configs/svc-nodeport-obj-def.yml
@@ -224,42 +192,13 @@ kubernetes                      10.96.0.1       <none>        443/TCP          4
 svc-nodeport-apache-webserver   10.100.173.40   <nodes>       3050:31000/TCP   7s        component=apache_webserver
 ```
 
-Another way to get more details info is by using the 'describe' subcommand:
-
-```bash
-kubectl describe pods pod-httpd
-Name:               pod-httpd
-Namespace:          default
-Priority:           0
-PriorityClassName:  <none>
-.
-.
-...etc 
-
-
-kubectl describe service svc-nodeport-apache-webserver
-Name:                     svc-nodeport-apache-webserver
-Namespace:                default
-Labels:                   <none>
-.
-.
-...etc
-```
-
-
-
-
-
-Notice that we had to run the apply command twice, once for each config file. Luckily there's a way to apply all the configs in one command, and that is to just specify the directory that houses all the configs, e.g.:
+Notice that we had to run the apply command twice so far, once for each config file. Luckily there's a way to apply all the configs in one command, by specifying the directory that houses all your configs, e.g.:
 
 ```bash
 $ kubectl apply -f ./configs
 pod "pod-httpd" created
 service "svc-nodeport-apache-webserver" created
 ```
-
-
-
 
 Next, you need to find the ip address of your worker node, which you can find by running:
 
