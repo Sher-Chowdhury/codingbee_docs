@@ -33,39 +33,38 @@ Client Version: version.Info{Major:"1", Minor:"13", GitVersion:"v1.13.3", GitCom
 Server Version: version.Info{Major:"1", Minor:"13", GitVersion:"v1.13.3", GitCommit:"721bfa751924da8d1680787490c54b9179b1fed0", GitTreeState:"clean", BuildDate:"2019-02-01T20:00:57Z", GoVersion:"go1.11.5", Compiler:"gc", Platform:"linux/amd64"}
 ```
 
-You can also run the following to list out all the supported versions:
+You can also view the api reference data from the cli, using the 'explain' subcommand:
 
 ```bash
-$ kubectl api-versions
-admissionregistration.k8s.io/v1beta1
-apiextensions.k8s.io/v1beta1
-apiregistration.k8s.io/v1
-apiregistration.k8s.io/v1beta1
-apps/v1
-apps/v1beta1
-apps/v1beta2
-authentication.k8s.io/v1
-authentication.k8s.io/v1beta1
-authorization.k8s.io/v1
-authorization.k8s.io/v1beta1
-autoscaling/v1
-autoscaling/v2beta1
-autoscaling/v2beta2
-batch/v1
-batch/v1beta1
-certificates.k8s.io/v1beta1
-coordination.k8s.io/v1beta1
-events.k8s.io/v1beta1
-extensions/v1beta1
-networking.k8s.io/v1
-policy/v1beta1
-rbac.authorization.k8s.io/v1
-rbac.authorization.k8s.io/v1beta1
-scheduling.k8s.io/v1beta1
-storage.k8s.io/v1
-storage.k8s.io/v1beta1
-v1
+$ kubectl explain pod
+KIND:     Pod
+VERSION:  v1
+
+DESCRIPTION:
+     Pod is a collection of containers that can run on a host. This resource is
+     created by clients and scheduled onto hosts.
+.
+.
+...etc
 ```
+
+And you can drill down like this:
+
+
+```bash
+$ kubectl explain pod.kind
+KIND:     Pod
+VERSION:  v1
+
+FIELD:    kind <string>
+
+DESCRIPTION:
+     Kind is a string value representing the REST resource this object
+     represents. Servers may infer this from the endpoint the client submits
+     requests to. Cannot be updated. In CamelCase. More info:
+     https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds
+```
+
 
 **metadata:** Data that helps uniquely identify the object. metadata.name is used to assign a name to the object. It's also used to link up objects together with the help of the metadata.labels data.
 

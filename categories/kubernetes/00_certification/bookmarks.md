@@ -7,6 +7,7 @@ main exam homepage: [https://www.cncf.io/certification/cka/](https://www.cncf.io
 
 - [https://github.com/cncf/curriculum](https://github.com/cncf/curriculum)
 - [https://medium.com/@ContinoHQ/the-ultimate-guide-to-passing-the-cka-exam-1ee8c0fd44cd](https://medium.com/@ContinoHQ/the-ultimate-guide-to-passing-the-cka-exam-1ee8c0fd44cd)
+- [https://medium.com/talking-tech-all-around/how-to-nail-the-cka-exam-7944be5476a4](https://medium.com/talking-tech-all-around/how-to-nail-the-cka-exam-7944be5476a4k)
 - [https://www.reddit.com/r/kubernetes/comments/ajcjy0/75_tips_to_help_you_ace_the_certified_kubernetes/](https://www.reddit.com/r/kubernetes/comments/ajcjy0/75_tips_to_help_you_ace_the_certified_kubernetes/)
 - [https://training.linuxfoundation.org/training/kubernetes-fundamentals/](https://training.linuxfoundation.org/training/kubernetes-fundamentals/)
 []()
