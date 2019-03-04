@@ -115,7 +115,23 @@ users:
     client-key: /Users/schowdhury/.minikube/client.key
 ```
 
-When you ran, `minikube start` earlier, what actually happened to configure kubectl cli, is that the file `~/.kube/config` was created. This shows all the configs as shown above. So our kubectl command is specifically configured to communicate with the minikube built VM. 
+When you ran, `minikube start` earlier, what actually happened to configure kubectl cli, is that the file `~/.kube/config` was created. This shows all the configs as shown above. So our kubectl command is specifically configured to communicate with the minikube built VM. If you want to connect to a different kubecluster, then there's a few ways to do this, one way is:
+
+```bash
+kubectl config use-context clustername
+```
+
+You can view  a list of contexts like this:
+
+```bash
+$ kubectl config get-contexts
+CURRENT   NAME                 CLUSTER                      AUTHINFO             NAMESPACE
+          default              kubernetes                   chowdhus             
+          docker-for-desktop   docker-for-desktop-cluster   docker-for-desktop   
+*         minikube             minikube                     minikube
+```
+
+
 
 However our docker cli, is still configured to just interact with our macbook installed docker-daemon. But you want it also connect to the docker daemon inside the minikube built VM, then run:
 
