@@ -7,6 +7,10 @@ metadata:
     component: httpd_webserver
 spec:
   replicas: 2 
+  minReadySeconds: 60 # This is one of the bells and whistle feature that deployment objects provides,
+                      # but replica sets doesn't. 
+                      # it's how many seconds to wait after pod is created, before deployment 
+                      # will allow the pod to start receiving traffic. 
   selector:
     matchLabels:
       component: httpd_webserver

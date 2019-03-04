@@ -6,7 +6,7 @@ In the case of deployments, they control the state of other pod objects. Deploym
 
 Deployments monitors the pods by continously performing pod healthchecks and ensures that the desired state (of number of healthy active pods) is maintained. That's why it's [kubernetes best practice](https://kubernetes.io/docs/concepts/configuration/overview/#naked-pods-vs-replicasets-deployments-and-jobs) to always create pods using a controller object, such as deployments.
 
-Here's our example deployment yaml file:
+Deployments are effectively a wrapper for replicasets behind the scenes (with a few extra bells and wistles). Here's our example deployment yaml file:
 
 ```yaml
 ---
@@ -18,6 +18,10 @@ metadata:
     component: httpd_webserver
 spec:
   replicas: 2 
+  minReadySeconds: 60 # This is one of the bells and whistle feature that deployment objects provides,
+                      # but replica sets doesn't. 
+                      # it's how many seconds to wait after pod is created, before deployment 
+                      # will allow the pod to start receiving traffic. 
   selector:
     matchLabels:
       component: httpd_webserver
@@ -41,7 +45,7 @@ NAME        READY   UP-TO-DATE   AVAILABLE   AGE
 dep-httpd   2/2     2            2           12s
 ```
 
-deployments are effectively a wrapper for replicasets behind the scenes (with a few extra bells and wistles), meaning that this deployment object created the following replicaset behind the scenes:
+ This deployment object created the following replicaset:
 
 ```bash
 $ kubectl get rs
@@ -56,6 +60,13 @@ $ kubectl get -o wide pods
 NAME                                READY     STATUS    RESTARTS   AGE       IP           NODE
 deployment-httpd-648756c8dd-hcc7f   1/1       Running   0          1m        172.17.0.5   minikube
 ```
+
+So a deployment object created another controller object (replicaset), which in turn created the pod objects. That means if we manually delete the RS then the deployment would automatically recreate it again, which in turn will recreate the pods. 
+
+Going back to the yaml file, you'll notice that it's content is essentially 3 object definitions in a nested fashion. At the top we have the deploymnet, followed by the replicaset, and finally the pod definition
+
+
+
 
 
 Now if you want to increase the number of pods running under this deployment, then just update the replicas setting in the deployments config file then reapply. 
