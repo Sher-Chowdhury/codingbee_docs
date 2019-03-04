@@ -1,6 +1,13 @@
 # Anatomy of an Kubernetes object config file
 
-Notice, that all these config files have the following general yaml structure:
+There's 3 main approaches to create/update/delete Kubernetes objects. Broadly speaking, they are the [imperative and declarative approaches](https://kubernetes.io/docs/concepts/overview/object-management-kubectl/overview/). 
+
+Broadly speaking, the imperative approach involves creatinng objects solely via the kubectl command line. Whereas the declaritive approach involves createing 'Kubernetes Object yaml files'. Then we use the kubectl 'apply' subcommand to create these objects. 
+
+The Declaritive approach is deemed as the best practice approach. 
+
+
+ Notice, that all these config files have the following general yaml structure:
 
 ```yaml
 apiVersion: xxx
