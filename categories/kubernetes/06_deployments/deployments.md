@@ -2,7 +2,7 @@
 
 [deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) are a special type of object referred to as 'controllers'. Controllers are objects that monitor+controls the state and behaviour of other objects.
 
-In the case of deployments, they control the state of other pod objects. Deployments are a bit like the equivalent of AWS EC2 Autoscaling Scaling Groups, Where instead of autoamatically scaling ec2 instances, in kubernetes you autoscale identical pods across one or more worker nodes. 
+In the case of deployments, they control the state of other pod objects. Deployments are a bit like the equivalent of AWS EC2 Autoscaling Scaling Groups, Where instead of autoamatically scaling ec2 instances, in kubernetes you autoscale identical pods across one or more worker nodes.
 
 Deployments monitors the pods by continously performing pod healthchecks and ensures that the desired state (of number of healthy active pods) is maintained. That's why it's [kubernetes best practice](https://kubernetes.io/docs/concepts/configuration/overview/#naked-pods-vs-replicasets-deployments-and-jobs) to always create pods using a controller object, such as deployments.
 
@@ -17,11 +17,11 @@ metadata:
   labels:
     component: httpd_webserver
 spec:
-  replicas: 2 
+  replicas: 2
   minReadySeconds: 60 # This is one of the bells and whistle feature that deployment objects provides,
-                      # but replica sets doesn't. 
-                      # it's how many seconds to wait after pod is created, before deployment 
-                      # will allow the pod to start receiving traffic. 
+                      # but replica sets doesn't.
+                      # it's how many seconds to wait after pod is created, before deployment
+                      # will allow the pod to start receiving traffic.
   selector:
     matchLabels:
       component: httpd_webserver
@@ -29,7 +29,7 @@ spec:
     metadata:
       labels:
         component: httpd_webserver
-    spec: 
+    spec:
       containers:
         - name: cntr-nginx
           image: httpd:latest
@@ -61,18 +61,13 @@ NAME                                READY     STATUS    RESTARTS   AGE       IP 
 deployment-httpd-648756c8dd-hcc7f   1/1       Running   0          1m        172.17.0.5   minikube
 ```
 
-So a deployment object created another controller object (replicaset), which in turn created the pod objects. That means if we manually delete the RS then the deployment would automatically recreate it again, which in turn will recreate the pods. 
+So a deployment object created another controller object (replicaset), which in turn created the pod objects. That means if we manually delete the RS then the deployment would automatically recreate it again, which in turn will recreate the pods.
 
 Going back to the yaml file, you'll notice that it's content is essentially 3 object definitions in a nested fashion. At the top we have the deploymnet, followed by the replicaset, and finally the pod definition
 
-
-
-
-
-Now if you want to increase the number of pods running under this deployment, then just update the replicas setting in the deployments config file then reapply. 
+Now if you want to increase the number of pods running under this deployment, then just update the replicas setting in the deployments config file then reapply.
 
 You can change port numbers too, however what deployments will end up doing is create new pods (with the correct port number) and use them to replace the existing pods that have the old port numbers.
-
 
 ## Refreshing deployments with new images
 
@@ -110,6 +105,5 @@ kubectl set image {object kind}/{object-name} {container-name}={image-name}
 ```bash
 kubectl delete deployments deployment-nginx
 ```
-Notice that we run this command imperitively rather than doing it declaritevely by specifying the config file. 
 
-
+Notice that we run this command imperitively rather than doing it declaritevely by specifying the config file.

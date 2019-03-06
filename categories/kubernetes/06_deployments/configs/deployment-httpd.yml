@@ -20,7 +20,7 @@ spec:
         component: httpd_webserver
     spec: 
       containers:
-        - name: cntr-nginx
+        - name: cntr-httpd
           image: httpd:latest
           ports:
             - containerPort: 80
