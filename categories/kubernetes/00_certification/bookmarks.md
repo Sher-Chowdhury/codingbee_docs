@@ -43,3 +43,6 @@ source <(kubectl completion bash)
 
 
 ```
+You can also find samples in the api documentations:
+
+https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#service-v1-core

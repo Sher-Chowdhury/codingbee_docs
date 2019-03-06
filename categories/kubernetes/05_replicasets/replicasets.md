@@ -54,6 +54,8 @@ As you can see, a single yaml file ended up creating multiple objects.
 
 ## Controllers
 
+The word 'controller' is used in Kubernetes to refer to objects that doesn't actually to any heavy-lifting low level work, e.g. it doesn't run any containers like pods do, or route traffic, like nodeport service objects do. Instead a controller object creates other objects that does all the legwork, and it ensures the state of those objects. Therefore a controller builds other objects to reach a desired state, and then constantly monitors+maintains that desired state. 
+
 Objects like replicasets are referred to as 'Controller objects'. A controller object is an object that controls the creation/deletion of other objects, and monitors the health of those objects. So in the case of replicaset objects, Replicasets creates/deletes/maintains pod objects, as per the spec.replicas setting. For example if we have 2 pods created/monitored by a replicaset,and we simulate a pod failure by deleting one of them, then the replicaset will automatically build another pod in order to reach the desired state:
 
 ```bash

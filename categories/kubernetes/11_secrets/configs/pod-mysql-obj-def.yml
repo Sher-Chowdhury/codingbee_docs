@@ -13,8 +13,8 @@ spec:
         - name: MYSQL_DATABASE
           value: dummy_db
         - name: MYSQL_ROOT_PASSWORD
-          valueFrom: 
-            secretKeyRef: 
+          valueFrom:
+            secretKeyRef:
               name: mysql-secrets      # this is the name of the object that holds one or more key-value pairs. 
               key: MysqlRootPassword   # this is the name of the key, whose value we're interested in. 
       ports:
