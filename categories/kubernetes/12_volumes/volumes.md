@@ -2,9 +2,8 @@
 
 There are different types of storage options available in Kubernetes, they are:
 
-1. [Volumes](https://kubernetes.io/docs/concepts/storage/volumes) - This is used for storing pod-level non-persistant (ephemeral) data. If container inside pod dies and gets rebuilt, then the data persists. But if whole pod dies, then the data in the volume gets wiped out. You can think of these volumes as living inside a pod.
-2. [Persistent Volumes - aka PV](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) - this is a volume that is persistent even if/when the pod that's using it dies. Persistent Volumes lives outside the pod.
-3. [Persistent Volume Claims - aka PVC](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#lifecycle-of-a-volume-and-claim). - https://rancher.com/blog/2018/2018-09-20-unexpected-kubernetes-part-1/ 
+1. [Persistent Volumes - aka PV](https://kubernetes.io/docs/concepts/storage/persistent-volumes/) - this is a volume that is persistent even if/when the pod that's using it dies. Persistent Volumes lives outside the pod.
+2. [Persistent Volume Claims - aka PVC](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#lifecycle-of-a-volume-and-claim). - https://rancher.com/blog/2018/2018-09-20-unexpected-kubernetes-part-1/ 
 
 We've already coverer Volumes, so will cover PVs and PVCs.
 

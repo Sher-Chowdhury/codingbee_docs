@@ -292,6 +292,24 @@ Commercial support is available at
 
 However, like 'kind' and metadata.name, there are other fields that you can't change, e.g. for a pod object, you can't change the containerPort. If you do then you'll get a forbidden error message.
 
+
+## Troubleshooting pods
+
+If a pod is failing to enter running mode, then there's a few ways to investigate that:
+
+
+```bash
+
+kubectl logs podname
+
+kubectl describe pods podname   # this has a history session, which could give more info
+
+kubectl get pods podname -o yaml   # this has a state message which gives more info too.
+
+
+```
+
+
 ## References
 
 [kubernetes api concepts](https://kubernetes.io/docs/concepts/overview/kubernetes-api/)

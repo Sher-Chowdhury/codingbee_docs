@@ -72,6 +72,18 @@ $ kubectl create namespace codingbee-hello-world
 namespace "codingbee-hello-world" created
 ```
 
+Alternatively we can create it via the yaml approach:
+
+```bash
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: codingbee-hello-world
+spec: {}
+```
+
+
 You can then specify what namespace objects are created in by adding the following line in the metadata section:
 
 ```yaml
