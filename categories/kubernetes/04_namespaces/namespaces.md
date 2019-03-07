@@ -121,8 +121,15 @@ NAME                                CLUSTER-IP      EXTERNAL-IP   PORT(S)       
 svc/svc-nodeport-apache-webserver   10.109.20.222   <nodes>       3050:31000/TCP   1m
 ```
 
-You always have to specify namespace flag in the command line flag when you organise all your objects using them. However we'll stick to using the default namespace, just for convenience. If you want to delete a namespace and all the objects inside it, do:
+
+Specifying namespaces on the command line can get quite tedious, which might put you off from using namespaces. However you can persistantly change namespaces by running
 
 ```bash
-kubectl get pods --namespace=codingbee-hello-world
+$ kubectl config set-context $(kubectl config current-context) --namespace=kube-system
+Context "minikube" modified.
 ```
+
+As you can see, the command we use to configure which kubecluster our kubectl command should connect to also lets you set the namespace (i.e. namespace to use when not explicitly specified on the command line).
+
+
+

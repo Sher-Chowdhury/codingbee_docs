@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod-httpd-consumer
+  name: pod-centos
   labels:
-    component: apache_webserver_consumer
+    component: centos
 spec: 
   containers:
     - name: cntr-centos
