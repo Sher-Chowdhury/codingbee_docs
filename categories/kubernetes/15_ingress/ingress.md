@@ -2,11 +2,14 @@
 
 Earlier we covered service objects which sets up networking between pods in the same kubecluster, by creating a ClusterIP service, and also how we can make a pod externally accessible by creating a NodePort service. 
 
-However nodeport service isn't recommended in a production environment, and should only be used in dev kubecluster environments. 
+However nodeport service isn't recommended in a production environment, and should only be used in dev kubecluster environments. Theres a few reasons for this:
 
-The recommended way make pods externally accessible is by creating Ingress objects. Ingress objects, like services objects is used for setting up networking. 
+- You end up using a lot of non-standard pods to make externally facing pods accessible. Also keeping track of which port is which can be a nightmare. 
+- You end up with worker nodes listening on lots of ports, at the VM machine level. This isn't a neat solution and it also means that you end up meaning extra work in terms of updating AWS Security Groups to whitelist all these ports.
 
-However ingress ojects are specifically for setting up networking to make pods externally accessible. It uses nginx behind the scenes, and it has it's own github repo called [ingress-nginx](https://github.com/kubernetes/ingress-nginx). Like LoadBalancer Service objects, the setup of Ingress is also dependent on which cloud platform you use.
+The ideal solution would be to have your worker nodes only listening to standard ports, e.g. port 443 for https. That's possible by Ingress objects. Ingress objects, like services objects is used for setting up networking. Ingress is actually a service type object, but since it's such a big part, it's been spun out into it's own object kind. 
+
+Ingress ojects are specifically for setting up networking to make pods externally accessible. It uses nginx behind the scenes, and it has it's own github repo called [ingress-nginx](https://github.com/kubernetes/ingress-nginx). Like LoadBalancer Service objects, the setup of Ingress is also dependent on which cloud platform you use.
 
 
 When you create an ingress-nginx object, you are effectively creating an 'Ingress-controller'. So what objects does an Ingress controller build? It basically builds
@@ -19,7 +22,7 @@ When you create an ingress-nginx object, you are effectively creating an 'Ingres
 
 
 
-### Setting up Ingress on Minikube
+## Setting up Ingress on Minikube
 
 The [Nginx official Ingress](https://kubernetes.github.io/ingress-nginx/) Documentation covers how to set up the Ingress object. First go to the [Ingress deploy](https://kubernetes.github.io/ingress-nginx/deploy/) section. Then perform the [generic deployloyment](https://kubernetes.github.io/ingress-nginx/deploy/#prerequisite-generic-deployment-command), this part is irrespective of what cloud platform you're using. 
 
