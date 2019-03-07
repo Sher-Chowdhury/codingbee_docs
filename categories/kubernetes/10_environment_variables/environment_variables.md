@@ -46,7 +46,21 @@ kubernetes                     ClusterIP   10.96.0.1       <none>        443/TCP
 svc-nodeport-mysql-db-server   NodePort    10.111.211.39   <none>        3050:31306/TCP   43s
 ```
 
-But the only way to know for sure is to take a look inside the pod by creating a mysql session inside it. 
+Let's now check if our env variables exist inside the mysql container:
+
+
+```bash
+$ kubectl exec -it pod-mysql-db /bin/bash
+root@pod-mysql-db:/# env | grep PASSWORD
+MYSQL_ROOT_PASSWORD=password123
+root@pod-mysql-db:/# env | grep MYSQL_DATABASE
+MYSQL_DATABASE=dummy_db
+```
+
+So it looks likes this has worked and it means that these env var should have got used by the [docker images](https://github.com/docker-library/mysql/blob/master/8.0/docker-entrypoint.sh).
+
+
+But the only way to know for sure is to take a look inside the pod by creating a mysql session inside it.
 
 
 ## Creating an interactive mysql session to a pod
