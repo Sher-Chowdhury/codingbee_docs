@@ -48,7 +48,6 @@ svc-nodeport-mysql-db-server   NodePort    10.111.211.39   <none>        3050:31
 
 Let's now check if our env variables exist inside the mysql container:
 
-
 ```bash
 $ kubectl exec -it pod-mysql-db /bin/bash
 root@pod-mysql-db:/# env | grep PASSWORD
@@ -59,9 +58,7 @@ MYSQL_DATABASE=dummy_db
 
 So it looks likes this has worked and it means that these env var should have got used by the [docker images](https://github.com/docker-library/mysql/blob/master/8.0/docker-entrypoint.sh).
 
-
 But the only way to know for sure is to take a look inside the pod by creating a mysql session inside it.
-
 
 ## Creating an interactive mysql session to a pod
 
@@ -73,8 +70,6 @@ $ minikube ip
 ```
 
 Now let's see if we can nc/telnet to it (using the port number that's listed in our svc object as shown above):
-
-
 
 ```bash
 $ nc -v 192.168.99.102 31306
@@ -128,7 +123,7 @@ mysql> SHOW DATABASES;
 mysql>
 ```
 
-Success! however note that dummy_db was created because of the env variables we fed in via the yaml configurations. if dummy_db contained data, then that data would get wiped out if you rebuild the pod, leaving you with a empty dummy_db db again. To make the db and it's data persistant, we need to make use of persistant volumes, covered later. 
+Success! however note that dummy_db was created because of the env variables we fed in via the yaml configurations. if dummy_db contained data, then that data would get wiped out if you rebuild the pod, leaving you with a empty dummy_db db again. To make the db and it's data persistant, we need to make use of persistant volumes, covered later.
 
 Now let's delete everything:
 
@@ -138,5 +133,4 @@ pod "pod-mysql-db" deleted
 service "svc-nodeport-mysql-db-server" deleted
 ```
 
-
-You can also environment variables to [inject pod metadata into containers](https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/). 
+You can also environment variables to [inject pod metadata into containers](https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/).
