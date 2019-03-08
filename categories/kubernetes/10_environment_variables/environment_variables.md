@@ -137,3 +137,6 @@ $ kubectl delete -f configs
 pod "pod-mysql-db" deleted
 service "svc-nodeport-mysql-db-server" deleted
 ```
+
+
+You can also environment variables to [inject pod metadata into containers](https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/). 
