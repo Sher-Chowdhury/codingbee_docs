@@ -61,46 +61,114 @@ NAME                                READY     STATUS    RESTARTS   AGE       IP 
 deployment-httpd-648756c8dd-hcc7f   1/1       Running   0          1m        172.17.0.5   minikube
 ```
 
-So a deployment object created another controller object (replicaset), which in turn created the pod objects. That means if we manually delete the RS then the deployment would automatically recreate it again, which in turn will recreate the pods.
+So a deployment object created another controller object (replicaset), which in turn created the pod objects. That means if we manually delete the RS then the deployment would automatically recreate it again, which in turn will recreate the pods. Going back to the yaml file, you'll notice that it's content is essentially 3 object definitions in a nested fashion. At the top we have the deploymnet, followed by the replicaset, and finally the pod definition. If you want to increase the number of pods running under this deployment, then just update the replicas setting in the yaml file and reapply. You can check the sequence of tasks that kubernetes performed behind the scenes using the 'events' subcommand:
 
-Going back to the yaml file, you'll notice that it's content is essentially 3 object definitions in a nested fashion. At the top we have the deploymnet, followed by the replicaset, and finally the pod definition
-
-Now if you want to increase the number of pods running under this deployment, then just update the replicas setting in the deployments config file then reapply.
-
-You can change port numbers too, however what deployments will end up doing is create new pods (with the correct port number) and use them to replace the existing pods that have the old port numbers.
-
-## Refreshing deployments with new images
-
-One of the most common changes that you're likely to want to do with a deployment is to update the pods in a deployment as soon as a newer image version becomes available in the docker hub. There's mainly three ways to do this, but none of them are that great:
-
-1. rebuilding the deployment - not recommended in a prod environment since it would lead to downtime.
-2. manually update version specified in the deployment config file - Doable, but not ideal since it involves making regular changes to your config file. Also unfortunately you can't parameterize the config files.
-3. Specify the image version on the kubectl command line, effectively overriding/deviating from the config file. - Not great since it results in configuration drift.
-4. Use third party solutions, e.g. [gitkube](https://github.com/hasura/gitkube)
-
-If you decide to take option 3, then here's what the command will look like, if we were to replace the official nginx image with the official apache image:
 
 ```bash
-$ kubectl describe deployment deployment-nginx | grep Image
-    Image:              nginx:latest
-
-$ kubectl set image deployment/deployment-nginx cntr-nginx=httpd
-deployment "deployment-nginx" image updated
-
-$ kubectl describe deployment deployment-nginx | grep Image
-    Image:              httpd
-
-$ curl http://192.168.99.100:31000
-<html><body><h1>It works!</h1></body></html>
+$ kubectl get events
+LAST SEEN   TYPE     REASON              KIND         MESSAGE
+38m         Normal   Scheduled           Pod          Successfully assigned default/dep-httpd-95466f584-k2t4v to minikube
+38m         Normal   Pulling             Pod          pulling image "httpd:2.4.37"
+38m         Normal   Pulled              Pod          Successfully pulled image "httpd:2.4.37"
+38m         Normal   Created             Pod          Created container
+38m         Normal   Started             Pod          Started container
+38m         Normal   Scheduled           Pod          Successfully assigned default/dep-httpd-95466f584-nvl26 to minikube
+38m         Normal   Pulling             Pod          pulling image "httpd:2.4.37"
+38m         Normal   Pulled              Pod          Successfully pulled image "httpd:2.4.37"
+38m         Normal   Created             Pod          Created container
+38m         Normal   Started             Pod          Started container
+38m         Normal   SuccessfulCreate    ReplicaSet   Created pod: dep-httpd-95466f584-k2t4v
+38m         Normal   SuccessfulCreate    ReplicaSet   Created pod: dep-httpd-95466f584-nvl26
+38m         Normal   ScalingReplicaSet   Deployment   Scaled up replica set dep-httpd-95466f584 to 2
 ```
 
-So the syntax is:
 
-```text
-kubectl set image {object kind}/{object-name} {container-name}={image-name}
+
+
+## Rolling updates to pods
+
+When a new image version is released, then it's likely that you want to update all your deployment-managed pods to have containers built with the new image. With deployments it's quite easy to deploy the new image. You simply update the yaml file, then reapply. The rollout can take a little while, but you can monitor the deployment in realtime like this:
+
+```bash
+$ kubectl rollout status deployment dep-httpd
+Waiting for deployment "dep-httpd" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "dep-httpd" rollout to finish: 1 out of 2 new replicas have been updated...
+Waiting for deployment "dep-httpd" rollout to finish: 2 old replicas are pending termination...
+Waiting for deployment "dep-httpd" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "dep-httpd" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "dep-httpd" rollout to finish: 1 old replicas are pending termination...
+deployment "dep-httpd" successfully rolled out
 ```
 
-### Deleting Deployments
+Basically the deployment will create a brand new replicaset with the new image defined inside it. Then gradually scale it up, while it scales down the existing replicaset to zero.
+
+```bash
+$ kubectl get rs
+NAME                   DESIRED   CURRENT   READY   AGE
+dep-httpd-7b9d4f7ccf   2         2         2       6m18s
+dep-httpd-95466f584    1         1         1       149m
+```
+
+The net result is that all the old pods gets replaced by the new pods one at a time (also you can further customise the rolling update strategy using maxSurge+maxUnavailable yaml settings so that you can replace pods 2 or more pods at a time). 
+
+## Perform rollbacks
+
+The cool thing about this approach is that if you decide to do a rollback, then you simply need to revert the yaml file back to it's old image and reapply it, but this time the deployment won't create a new replicaset, instead it would just scale up the existing replicaset, and scale down the now redundant replicaset. However if want need to rollback in rush and don't have time to update the yaml file, then you can use the 'rollout' to achieve the same effect:
+
+```bash
+$ kubectl rollout undo deployment dep-httpd
+deployment.extensions/dep-httpd rolled back
+```
+
+The rollout command also has number of other subcommands that could come in handy:
+
+```bash
+$ kubectl rollout
+history  pause    resume   status   undo
+```
+
+If you want to roll back several revisions back then first track down which revision you want:
+
+```bash
+$ kubectl rollout history deployment dep-httpd
+deployment.extensions/dep-httpd 
+REVISION  CHANGE-CAUSE
+2         <none>
+3         <none>
+4         <none>
+5         <none>
+```
+
+Then confirm the details of the revision to go back to, e.g. I wan to revision 4, but need to check what image I will end up with:
+
+```bash
+$ kubectl rollout history deployment dep-httpd --revision=4
+deployment.extensions/dep-httpd with revision #4
+Pod Template:
+  Labels:       component=httpd_webserver
+        pod-template-hash=7b9d4f7ccf
+  Containers:
+   cntr-httpd:
+    Image:      httpd:2.4.38
+    Port:       80/TCP
+    Host Port:  0/TCP
+    Environment:        <none>
+    Mounts:     <none>
+  Volumes:      <none>
+```
+
+Once I'm happy with my chosen revision I perform the rollback:
+
+```bash
+$ kubectl rollout undo deployment dep-httpd --to-revision=4
+deployment.extensions/dep-httpd rolled back
+```
+
+
+
+## Deleting Deployments
+
+If you want to delete the deployment and everything that's associated with it, then do:
 
 ```bash
 kubectl delete deployments deployment-nginx

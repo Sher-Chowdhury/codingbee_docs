@@ -11,7 +11,7 @@ main exam homepage: [https://www.cncf.io/certification/cka/](https://www.cncf.io
 - [https://www.reddit.com/r/kubernetes/comments/ajcjy0/75_tips_to_help_you_ace_the_certified_kubernetes/](https://www.reddit.com/r/kubernetes/comments/ajcjy0/75_tips_to_help_you_ace_the_certified_kubernetes/)
 - [https://training.linuxfoundation.org/training/kubernetes-fundamentals/](https://training.linuxfoundation.org/training/kubernetes-fundamentals/)
 [https://medium.com/@pmvk/tips-to-crack-certified-kubernetes-administrator-cka-exam-c949c7a9bea1](https://medium.com/@pmvk/tips-to-crack-certified-kubernetes-administrator-cka-exam-c949c7a9bea1)
-[]()
+[https://medium.com/akena-blog/k8s-admin-exam-tips-22961241ba7d](https://medium.com/akena-blog/k8s-admin-exam-tips-22961241ba7d)
 []()
 []()
 []()
