@@ -75,7 +75,6 @@ rs-httpd-k62st   1/1     Running   0          118s
 
 However if you delete the RS, then you end up deleting the objects the RS controls:
 
-
 ```bash
 $ kubectl delete rs rs-httpd
 replicaset.extensions "rs-httpd" deleted

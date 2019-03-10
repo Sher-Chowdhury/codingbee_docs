@@ -133,13 +133,13 @@ If you want to roll back several revisions back then first track down which revi
 $ kubectl rollout history deployment dep-httpd
 deployment.extensions/dep-httpd 
 REVISION  CHANGE-CAUSE
-2         <none>
-3         <none>
 4         <none>
 5         <none>
 ```
 
-Then confirm the details of the revision to go back to, e.g. I wan to revision 4, but need to check what image I will end up with:
+Note: by default kubernetes only stores info about the last 2 deployments. which is why revisions 1-3 are missing here. You can increase this limit by settin your deployment's deployment.spec.revisionHistoryLimit yaml setting.
+
+Let's say I want to rollback to the image used in revision 4, then first need to check what image I will end up with:
 
 ```bash
 $ kubectl rollout history deployment dep-httpd --revision=4
@@ -157,14 +157,12 @@ Pod Template:
   Volumes:      <none>
 ```
 
-Once I'm happy with my chosen revision I perform the rollback:
+Once I'm happy with my chosen revision I then perform the rollback:
 
 ```bash
 $ kubectl rollout undo deployment dep-httpd --to-revision=4
 deployment.extensions/dep-httpd rolled back
 ```
-
-
 
 ## Deleting Deployments
 
