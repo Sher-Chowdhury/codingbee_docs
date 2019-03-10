@@ -41,6 +41,8 @@ source <(kubectl completion bash)
 
 ```bash
 
+# this creates a service yaml file
+kubectl expose pod podname --type=NodePort --name servicename -o yaml --dry-run
 
 ```
 You can also find samples in the api documentations:

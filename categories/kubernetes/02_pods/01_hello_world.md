@@ -157,7 +157,7 @@ spec:
                    # https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
                    # NodePort should only be used for dev environments.
   ports:
-    - port: 3050  # this is used by other pods to access assets that's avialable in our demo conainer
+    - port: 3050  # this is used by other pods to access assets that's available in our demo conainer
 
       targetPort: 80 # port number of the pod's primary container is listening on. So
                        # needs to mirror containerPort setting as defined in the object config file.
@@ -172,7 +172,7 @@ spec:
                                  # that's how this object and the pod object links together.
 ```
 
-There are different types of service objects, in our case we are creating a NodePort type service. NodePort services are quite crude and isn't recommended for production, but we're using it here because it's the easiest service type to understand for a beginner. Before we create our service object, let's first let's first see what services we currenlty have:
+There are different types of service objects, in our case we are creating a NodePort type service. NodePort services are quite crude and isn't recommended for production, but we're using it here because it's the easiest service type to understand for a beginner. Before we create our service object, let's first let's first see what services we currently have:
 
 ```bash
 $ kubectl get services
@@ -192,7 +192,7 @@ kubernetes                      10.96.0.1       <none>        443/TCP          4
 svc-nodeport-apache-webserver   10.100.173.40   <nodes>       3050:31000/TCP   7s        component=apache_webserver
 ```
 
-Notice that we had to run the apply command twice so far, once for each config file. Luckily there's a way to apply all the configs in one command, by specifying the directory that houses all your configs, e.g.:
+**Handy Tip**: Notice that we had to run the apply command twice so far, once for each yaml file. Luckily there's a way to apply all the configs in one command by simply specifying the directory that houses all your configs, e.g.:
 
 ```bash
 $ kubectl apply -f ./configs
@@ -207,12 +207,16 @@ $ minikube ip
 192.168.99.100
 ```
 
-Now, you can test either via a web browser, or with curl:
+Now you know the ip number and port number you should be using, So you can test the endpoint either via a web browser, or with curl:
 
 ```bash
 $ curl http://192.168.99.100:31000
 <html><body><h1>It works!</h1></body></html>
 ```
+
+
+
+
 
 ## Deleting objects
 
@@ -305,6 +309,8 @@ kubectl logs podname
 kubectl describe pods podname   # this has a history session, which could give more info
 
 kubectl get pods podname -o yaml   # this has a state message which gives more info too.
+
+kubectl get events    # this give more general historical info about tasks performed by kubernetes
 
 
 ```

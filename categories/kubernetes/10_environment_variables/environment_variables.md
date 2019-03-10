@@ -1,10 +1,10 @@
 # Environment Variables
 
-Some Docker images, e.g. the [official mysql image](https://hub.docker.com/_/mysql) have options to feed [docker image environment variables](https://hub.docker.com/_/mysql#environment-variables) into the the container. These environment are usually optional, but can also be mandatory. In the case of the mysql image, only MYSQL_ROOT_PASSWORD is mandatory. These environment variables are usually used by an [entrypoint](https://github.com/docker-library/mysql/blob/master/8.0/docker-entrypoint.sh) script.
+Some Docker images, e.g. the [official mysql image](https://hub.docker.com/_/mysql) let's you feed in [docker image environment variables](https://hub.docker.com/_/mysql#environment-variables) into the the container. These environment variables are usually optional, but some can be mandatory. In the case of the mysql image, the MYSQL_ROOT_PASSWORD variable is mandatory. These environment variables are usually used by an [entrypoint](https://github.com/docker-library/mysql/blob/master/8.0/docker-entrypoint.sh) script during a container's launch time.
 
-Here we're going to look at how we feed in environment variables into a container using kubernetes. We'll use the official mysql image for this walkthrough.
+Here we're going to look at how we feed in environment variables into a container using kubernetes. We'll use the official mysql image for this demo.
 
-The [mysql docker image environment variables](https://hub.docker.com/_/mysql#environment-variables) documentation tells us what env variables are avaliable, so we now construct a pod definition yaml file with the content:
+The [mysql docker image environment variables](https://hub.docker.com/_/mysql#environment-variables) documentation tells us what env variables are available, so we now construct a pod definition yaml file with the content:
 
 ```yaml
 apiVersion: v1
@@ -85,7 +85,7 @@ found 1 connections:
 Connection to 192.168.99.102 port 31306 [tcp/*] succeeded!
 ```
 
-This means our service object is working, and our pod is listening on port 3306. Next we install mysql client, on our macbook (if we don't already have it installed):
+This means our service object is working, and our pod is listening on port 3306. Next we'll install mysql client, on our macbook (if we don't already have it installed):
 
 ```bash
 brew install mysql-client
@@ -132,5 +132,7 @@ $ kubectl delete -f configs
 pod "pod-mysql-db" deleted
 service "svc-nodeport-mysql-db-server" deleted
 ```
+
+## Inject Pod metadata into containers
 
 You can also environment variables to [inject pod metadata into containers](https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/).
