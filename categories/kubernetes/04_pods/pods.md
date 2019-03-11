@@ -315,6 +315,9 @@ kubectl get events    # this give more general historical info about tasks perfo
 
 ```
 
+## More about Pods
+
+This is just a quick intro to pods. We'll cover more about pods as we work through the rest of this course. 
 
 ## References
 

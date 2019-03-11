@@ -236,6 +236,12 @@ Commercial support is available at
 
 However, like 'kind' and metadata.name, there are other fields that you can't change, e.g. for a pod object, you can't change the containerPort. If you do then you'll get a forbidden error message.
 
+
+
+## View entire yaml definition including implicit values. 
+
+
+
 ## References
 
 [kubernetes api concepts](https://kubernetes.io/docs/concepts/overview/kubernetes-api/)
