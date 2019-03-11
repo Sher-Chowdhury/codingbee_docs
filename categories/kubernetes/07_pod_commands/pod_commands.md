@@ -182,4 +182,4 @@ Mon Mar 11 12:22:31 UTC 2019
 Mon Mar 11 12:22:41 UTC 2019
 ```
 
-There are other ways to inject commands/shellscripts into pods, which we'll cover later on.
+There could be times when you want to run commands/scripts in addition to the docker image's backed in CMD/Entrypoint, rather than over-riding it. Luckily there are other ways to inject commands/shellscripts into pods, using [Poststart/PreStop](https://kubernetes.io/docs/tasks/configure-pod-container/attach-handler-lifecycle-event/) hooks. We'll cover them later. 
