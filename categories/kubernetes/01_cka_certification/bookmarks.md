@@ -45,6 +45,7 @@ source <(kubectl completion bash)
 kubectl expose pod podname --type=NodePort --name servicename -o yaml --dry-run
 
 ```
+
 You can also find samples in the api documentations:
 
 https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.13/#service-v1-core
