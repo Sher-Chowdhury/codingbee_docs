@@ -1,6 +1,13 @@
 # Services
 
-In Kubernetes, 'services' is actually all about networking. In Docker world, when you use docker-compose, all the networking is done for you automatically behind the scenes. However that's not the case when it comes to kubernetes. To setup networking in Kubernetes, you need to create 'service' objects.
+In Kubernetes, 'services' is actually all about networking. In Docker world, when you use docker-compose, all the networking is done for you automatically behind the scenes. However with Kubernetes there is only some basic networking in place, with Kubernetes, the following networking features comes out of the box:
+
+- Networking inside a pod - If you have 2+ containers inside a single pod, then these containers can reach each other via localhost.
+- IP based Pod-to-pod networking - 
+  
+  
+  
+To setup networking in Kubernetes, you need to create 'service' objects.
 
 There are [4 main types of of services](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types).
 

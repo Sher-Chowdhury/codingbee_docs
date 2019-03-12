@@ -6,7 +6,6 @@ Broadly speaking, the imperative approach involves creatinng objects solely via 
 
 The Declaritive approach is deemed as the best practice approach. 
 
-
  Notice, that all these config files have the following general yaml structure:
 
 ```yaml
