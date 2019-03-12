@@ -22,7 +22,7 @@ spec:
             - name: cntr-countdown
               image: centos:latest
               command:
-                - "bin/bash"
+                - "/bin/bash"
                 - "-c"
                 - |
                   for i in 9 8 7 6 5 4 3 2 1 ; do
