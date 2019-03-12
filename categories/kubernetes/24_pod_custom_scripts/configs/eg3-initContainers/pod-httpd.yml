@@ -6,14 +6,14 @@ metadata:
   labels:
     component: httpd
 spec:
-  initContainers:
-    name: initContainers
-    image: centos
-      - command:
+  initContainers:      # here we'ved added the initialisation contaner
+    - name: init
+      image: centos
+      command:
         - /bin/bash
         - -c
         - |
-          echo '$(date) INFO: sleep for 1 minute'
+          echo "$(date) INFO: sleep for 1 minute"
           sleep 60
   containers:
     - name: cntr-httpd

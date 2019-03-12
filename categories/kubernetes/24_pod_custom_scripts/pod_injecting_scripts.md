@@ -130,12 +130,75 @@ Although this is just a demo, a possible usecase for this kind of setup, is to h
 
 In a pod, you can have multiple containers, a primary container, and optionally 1 or more secondary (sidecar) containers. Howevever there's another type of container can add in, called [initContainers](https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-initialization/). initContainers (aka initialisation containers) are shortlived containers that are launched at a pod's launch time, as soon as the initContainers stops, the main primary container is then started up.
 
-One possible usecase for this is to use it populate a emptyDir non-persistant volume with website files, e.g. by git cloning a repo. Then the primary httpd container can mount that volume and display it.  
+One possible usecase for this is to use it populate a emptyDir non-persistant volume with website files, e.g. by git cloning a repo. Then the primary httpd container can mount that volume and display it. You can setup initcontianers using the pod.spec.initContainers yaml setting:
+
+```yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-httpd
+  labels:
+    component: httpd
+spec:
+  initContainers:      # here we'ved added the initialisation contaner
+    - name: init
+      image: centos
+      command:
+        - /bin/bash
+        - -c
+        - |
+          echo '$(date) INFO: sleep for 1 minute'
+          sleep 60
+  containers:
+    - name: cntr-httpd
+      image: httpd
+      ports:
+        - containerPort: 80
+```
 
 
+Straight after applying the above we get the following output:
 
+```bash
+$ kubectl apply -f configs/eg3-initContainers
+pod/pod-httpd created
+service/svc-nodeport-httpd created
+$ kubectl get pod
+NAME        READY   STATUS     RESTARTS   AGE
+pod-httpd   0/1     Init:0/1   0          30s
+```
 
+Notice that the output is a little different to indicate that the init container is currently running. Also if you try to check logs:
 
+```bash
+$ kubectl logs pod-httpd
+Error from server (BadRequest): container "cntr-httpd" in pod "pod-httpd" is waiting to start: PodInitializing
+$ kubectl logs pod-httpd -c init
+INFO: sleep for 1 minute
+```
+
+Our primary container usually starts up in well under 30 seconds, but in this case we have stalled the primary container launch using the init container, as a demo:
+
+```bash
+$ kubectl get pod
+NAME        READY   STATUS     RESTARTS   AGE
+pod-httpd   0/1     Init:0/1   0          55s
+$ curl $(minikube service svc-nodeport-httpd --url)
+curl: (7) Failed to connect to 192.168.99.105 port 31000: Connection refused
+```
+
+The primary container only starts working a few seconds after the initcontainers finishes running:
+
+```bash
+$ kubectl get pod
+
+NAME        READY   STATUS    RESTARTS   AGE
+pod-httpd   1/1     Running   0          78s
+
+$ curl $(minikube service svc-nodeport-httpd --url)
+<html><body><h1>It works!</h1></body></html>
+```
 
 
 
