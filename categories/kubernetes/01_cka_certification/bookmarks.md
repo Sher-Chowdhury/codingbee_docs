@@ -43,7 +43,7 @@ source <(kubectl completion bash)
 
 # this creates a service yaml file
 kubectl expose pod podname --type=NodePort --name servicename -o yaml --dry-run
-
+kubectl create secret generic mysql-secrets --from-literal MysqlRootPassword=password123 --dry-run -o yaml
 ```
 
 You can also find samples in the api documentations:

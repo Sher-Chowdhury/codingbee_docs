@@ -4,8 +4,7 @@ In Kubernetes, 'services' is actually all about networking. In Docker world, whe
 
 There are [4 main types of services](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types).
 
-
-In this let's just spin up the following pods for now:
+In this example let's just spin up the following pods for now:
 
 
 ```bash
