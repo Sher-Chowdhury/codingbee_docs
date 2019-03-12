@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: svc-nodeport-apache-webserver
+  name: svc-nodeport-httpd
 spec:
   type: NodePort   # there are 4 types of Services. ClusterIP, NodePort, LoadBalancer, Ingress.
                    # https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
