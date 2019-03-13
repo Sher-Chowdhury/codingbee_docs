@@ -8,8 +8,8 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
-spec: 
-  rules: 
+spec:
+  rules:
     - host: httpd-demo.com    # we specify a domain name this time. 
       http:
         paths:

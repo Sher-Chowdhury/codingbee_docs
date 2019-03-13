@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod-httpd-provider
+  name: pod-httpd
   labels:
     component: apache_webserver
 spec: 

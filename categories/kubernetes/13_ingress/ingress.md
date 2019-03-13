@@ -2,9 +2,9 @@
 
 Earlier we covered service objects which sets up networking between pods in the same kubecluster, by creating a ClusterIP service, and also how we can make a pod externally accessible by creating a NodePort service. However as mentioned, Nodeport shouldn't be used in a production environment. 
 
-The ideal solution would be to have your worker nodes only listening to standard ports, e.g. port 443 for https. That's possible by Ingress objects. Ingress objects, like services objects is used for setting up networking. Ingress is actually a service type object, but since it's such a big part, it's been spun out into it's own object kind. 
+The ideal solution would be to have your worker nodes only listening to standard ports, e.g. port 443 for https. That's possible by setting up Ingress objects. 
 
-Ingress ojects are specifically for setting up networking to make pods externally accessible. It uses nginx behind the scenes, and it has it's own github repo called [ingress-nginx](https://github.com/kubernetes/ingress-nginx). Like LoadBalancer Service objects, the setup of Ingress is also dependent on which cloud platform you use.
+Ingress ojects are used to make pods externally accessible. They make use of an internal nginx forward-proxy pod behind the scenes. This forward-proxy has it's own [ingress-nginx github repo](https://github.com/kubernetes/ingress-nginx). Ingress essentially acts as a gateway between the outside world and internals of your kube cluster, which is why the setup of Ingress is dependent on which cloud platform you use
 
 
 When you create an ingress-nginx object, you are effectively creating an 'Ingress-controller'. So what objects does an Ingress controller build? It basically builds
@@ -19,7 +19,7 @@ When you create an ingress-nginx object, you are effectively creating an 'Ingres
 
 ## Setting up Ingress on Minikube
 
-The [Nginx official Ingress](https://kubernetes.github.io/ingress-nginx/) Documentation covers how to set up the Ingress object. First go to the [Ingress deploy](https://kubernetes.github.io/ingress-nginx/deploy/) section. Then perform the [generic deployloyment](https://kubernetes.github.io/ingress-nginx/deploy/#prerequisite-generic-deployment-command), this part is irrespective of what cloud platform you're using. 
+The [Nginx official Ingress](https://kubernetes.github.io/ingress-nginx/) Documentation covers how to set up the Ingress object. First go to the [Ingress deploy](https://kubernetes.github.io/ingress-nginx/deploy/) section. Then perform the [generic deployloyment](https://kubernetes.github.io/ingress-nginx/deploy/#prerequisite-generic-deployment-command), this part is irrespective of what cloud platform you're using:
 
 ```bash
 $ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/mandatory.yaml
@@ -55,12 +55,22 @@ tcp-services                      0      8m35s
 udp-services                      0      8m35s
 ```
 
-Next we following the instructions to [enable ingress for minkube](https://kubernetes.github.io/ingress-nginx/deploy/#minikube)
+Next we following the instructions to [enable ingress for minkube](https://kubernetes.github.io/ingress-nginx/deploy/#minikube):
 
 ```bash
 $ minikube addons enable ingress
 ✅  ingress was successfully enabled
 ```
+
+
+
+
+
+
+
+
+
+
 
 Now we create our test environment.
 
@@ -147,9 +157,52 @@ $ curl -Lk  http://192.168.99.102
 
 ```
 
-## Accessing different pods based on different urls
 
-So far we've seen how we can access one pod via ingress. However another common scenario is that you want to access a particular pod based on the url. Here's an example of a ingress file to do something like that:
+
+## Ingress Objects Demo
+
+In this demo, we're going to start bringing together a lot of the topics covered earlier. In this demo we're going to use deployment objects to create 2 groups of pods, the 1st group will a bunch of apache pods, the second will be a group of nginx pods. All the pods from both groups will be listenion on port 80. Each group will have it's own ClusterIP object sitting in front of it. We'll then create an Ingress object that sit's in front of both ClusterIP objects and it will forward incoming external requests to the ClusterIP objects. The Ingress object will decide which ClusterIP object it will forward traffic to based on the requesting url address.
+
+
+So let's start by creating our 2 deployments:
+
+```bash
+$ kubectl apply -f configs/eg1-ingress/dep-httpd.yml
+deployment.apps/dep-httpd created
+$ kubectl apply -f configs/eg1-ingress/dep-nginx.yml
+deployment.apps/dep-nginx created
+$ 
+$ 
+$ 
+$ 
+$ kubectl get pods -o wide --show-labels
+NAME                         READY   STATUS    RESTARTS   AGE   IP            NODE       NOMINATED NODE   READINESS GATES   LABELS
+dep-httpd-596bb69fc4-hsbn6   1/1     Running   0          25s   172.17.0.7    minikube   <none>           <none>            component=httpd_pod,pod-template-hash=596bb69fc4
+dep-httpd-596bb69fc4-knmqv   1/1     Running   0          25s   172.17.0.8    minikube   <none>           <none>            component=httpd_pod,pod-template-hash=596bb69fc4
+dep-httpd-596bb69fc4-n84s8   1/1     Running   0          25s   172.17.0.9    minikube   <none>           <none>            component=httpd_pod,pod-template-hash=596bb69fc4
+dep-nginx-5965bddb9c-k2r66   1/1     Running   0          18s   172.17.0.12   minikube   <none>           <none>            component=nginx_pod,pod-template-hash=5965bddb9c
+dep-nginx-5965bddb9c-kg6j7   1/1     Running   0          18s   172.17.0.10   minikube   <none>           <none>            component=nginx_pod,pod-template-hash=5965bddb9c
+dep-nginx-5965bddb9c-knb4d   1/1     Running   0          18s   172.17.0.11   minikube   <none>           <none>            component=nginx_pod,pod-template-hash=5965bddb9c
+```
+
+Now let's create our 2 ClusterIPs:
+
+```bash
+$ kubectl apply -f configs/eg1-ingress/svc-ClusterIP-httpd.yml
+service/svc-clusterip-httpd created
+$ kubectl apply -f configs/eg1-ingress/svc-ClusterIP-nginx.yml
+service/svc-clusterip-nginx created
+
+
+$ kubectl get svc -o wide
+NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE     SELECTOR
+kubernetes            ClusterIP   10.96.0.1       <none>        443/TCP    3d21h   <none>
+svc-clusterip-httpd   ClusterIP   10.101.204.16   <none>        4000/TCP   20s     component=apache_webserver
+svc-clusterip-nginx   ClusterIP   10.101.250.15   <none>        5000/TCP   11s     component=nginx_webserver
+```
+
+These deployments and ClusterIP objects are stuff we've covered before, so there's nothing new here. It's the next part that's new, which is that we create the . 
+
 
 ```yaml
 ---
@@ -180,7 +233,12 @@ spec:
               servicePort: 5000
 ```
 
-Here we specify to rules. One that forwards traffic to a httpd pod, and the other to an nginx pod. 
+Here we specify to rules. One that forwards traffic to a httpd ClusterIP, and the other to an nginx ClusterIP. 
+
+
+
+
+
 
 We also have to add these custom domains into our local hosts file:
 
