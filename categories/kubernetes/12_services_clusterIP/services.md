@@ -1,179 +1,190 @@
-# Services
+# ClusterIP Service Type
 
-In Kubernetes, 'services' is actually all about networking. In Docker world, when you use docker-compose, all the networking is done for you automatically behind the scenes. However with Kubernetes there is only some basic networking in place, with Kubernetes, the following networking features comes out of the box:
-
-- Networking inside a pod - If you have 2+ containers inside a single pod, then these containers can reach each other via localhost.
-- IP based Pod-to-pod networking - 
-  
-  
-  
-To setup networking in Kubernetes, you need to create 'service' objects.
-
-There are [4 main types of of services](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types).
+As covered earlier, Kubernetes comes with some networking features out-of-the-box. But there are other networking that you need to setup yourself, which you do by creating Service objects. We've already covered one type of service object, the nodePort type. nodePort services are relatively easy to understand+setup, but they're not suitable for using in production environments. Instead of creating NodePort services, it's better to create **ClusterIP** and **Ingress** service objects.
 
 
-## Nodeport Service Type
-
-We have already created this type of service in earlier examples. The NodePort service type is specifically used for making a pod accessible externally. E.g. from another VM, or another pod from another Kubecluster. Nodeport can't be used for pod-to-pod communication where both pods are running in the same kube cluster.
-
-Nodeport is actually rarely used in production, and is mainly used for development purposes only. That's because:
-
-- url endpoint needs to explicitly end with ':{port nubmer}'. That looks ugly. 
-
-## ClusterIP Service Type
-
-This service type is specifically designed for setting up inter pod-to-pod communications inside a kube cluster.
+This ClusterIp service objets are specifically designed for setting up inter pod-to-pod communications inside a kube cluster.
 
 For example, let's say we have 2 pods, one is generic httpd pod, and the other is a generic centos pod. Let's say we want to be able to curl from the centos pod, to the httpd pod. To be able to do this, you need to create a ClusterIP service to sit in front of the httpd pod so that it can accept curl requests coming from other pods in the same kubecluster. So first we build the httpd pod:
 
 ```yaml
 ---
 apiVersion: v1
-kind: Pod
-metadata:
-  name: pod-httpd-provider
-  labels:
-    component: apache_webserver
-spec:
-  containers:
-    - name: cntr-httpd
-      image: httpd
-      ports:
-        - containerPort: 80
-```
-
-There's nothing special here, it's just a standard httpd pod. Now let's create the ClusterIP type Service:
-
-```yaml
-apiVersion: v1
 kind: Service
 metadata:
-  name: svc-clusterip-httpd   # this is the service endpoint that has a dns entry that we can curl for.
+  name: svc-clusterip-httpd   # this is the service endpoint that has a dns entry that we can curl for. 
 spec:
-  type: ClusterIP      # ClusterIP is the default if this line is omitted. 
+  type: ClusterIP
   ports:
-    - port: 4000       # Other pods will need to access the httpd pod via this port number
-      targetPort: 80   # This service object will forward incoming 4000 port requests to this port.
+    - port: 80          # you can choose to use a different port number here if you like.
+      targetPort: 80
   selector:
-    component: apache_webserver   # this is how we link this service to our httpd pod
+    component: httpd_webserver
 ```
 
-Next we create the centos pod:
+From this yaml file, you'll see that ClusterIP gives us two really important features:
+
+- ClusterIP objects ends up adding a [dns entry](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#what-things-get-dns-names) in the kube cluster's internal dns service (kube-dns/coredns).
+- ClusterIP objects comes with built in loadbalancing - It forwards traffic to all pods with the matching label
+
+This yaml file ends up creating:
+
+```bash
+$ kubectl get svc
+NAME                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+kubernetes                      ClusterIP   10.96.0.1        <none>        443/TCP          3d16h
+svc-clusterip-httpd             ClusterIP   10.99.76.207     <none>        80/TCP           5m8s
+```
+
+You can think of ClusterIP objects as an internal loadbalancer with a working static dns name. It's makes ClusterIP objects perfectly suited to deliver traffic to a group of pods spawnd by a Deployment object. Here's our example:
+
 
 ```yaml
 ---
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: pod-httpd-consumer
+  name: dep-httpd
   labels:
-    component: apache_webserver_consumer
+    component: apache_webserver
 spec:
-  containers:
-    - name: cntr-centos
-      image: centos
-      command: ["/bin/bash", "-c"]
-      args:
-        - while true ; do
-            date ;
-            curl -s http://svc-clusterip-httpd.default.svc.cluster.local:4000 ;
-            sleep 10 ;
-          done
+  replicas: 3 
+  selector:
+    matchLabels:
+      component: httpd_webserver
+  template:
+    metadata:
+      labels:
+        component: httpd_webserver
+    spec: 
+      containers:
+        - name: cntr-httpd
+          image: httpd:latest
+          ports:
+            - containerPort: 80
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              /bin/echo "The pod, $HOSTNAME is displaying this page." > /usr/local/apache2/htdocs/index.html
+              /usr/local/bin/httpd-foreground  
 ```
 
-The key thing to note here, is the [dns name](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#what-things-get-dns-names) we used, here's its breakdown:
-
-```text
-http://{service object's metadata.name}.{namespace name}.svc.cluster.local
-```
-
-You can find the '.svc.cluster.local' in the centos container's /etc/resolv.conf file:
+This deployment ends up creating:
 
 ```bash
-$ kubectl exec pod-httpd-consumer -it /bin/bash
-[root@pod-httpd-consumer /]# cat /etc/resolv.conf
+$ kubectl get pods -o wide --show-labels
+NAME                         READY   STATUS    RESTARTS   AGE    IP            NODE       NOMINATED NODE   READINESS GATES   LABELS
+dep-httpd-597fc5f696-4jt8b   1/1     Running   0          106s   172.17.0.8    minikube   <none>           <none>            component=httpd_webserver,pod-template-hash=597fc5f696
+dep-httpd-597fc5f696-6ttn4   1/1     Running   0          106s   172.17.0.10   minikube   <none>           <none>            component=httpd_webserver,pod-template-hash=597fc5f696
+dep-httpd-597fc5f696-qw4pf   1/1     Running   0          106s   172.17.0.9    minikube   <none>           <none>            component=httpd_webserver,pod-template-hash=597fc5f696
+```
+
+Now we have pods with labels that our ClusterIP object is allowed to send traffic to, we can confirm this in the endpoints entry:
+
+```bash
+$ kubectl describe svc svc-clusterip-httpd
+Name:              svc-clusterip-httpd
+Namespace:         default
+Labels:            <none>
+Annotations:       kubectl.kubernetes.io/last-applied-configuration:
+                     {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"svc-clusterip-httpd","namespace":"default"},"spec":{"ports":[{"po...
+Selector:          component=httpd_webserver
+Type:              ClusterIP
+IP:                10.99.76.207
+Port:              <unset>  80/TCP
+TargetPort:        80/TCP
+Endpoints:         172.17.0.10:80,172.17.0.8:80,172.17.0.9:80
+Session Affinity:  None
+Events:            <none>
+```
+
+Now we can test out the ClusterIP dns and loadbalancing from our centos test pod. 
+
+```bash
+$ kubectl exec pod-centos -it /bin/bash
+[root@pod-centos /]# curl http://svc-clusterip-httpd.default.svc.cluster.local
+The pod, dep-httpd-597fc5f696-4jt8b is displaying this page.
+[root@pod-centos /]# curl http://svc-clusterip-httpd.default.svc.cluster.local
+The pod, dep-httpd-597fc5f696-4jt8b is displaying this page.
+[root@pod-centos /]# curl http://svc-clusterip-httpd.default.svc.cluster.local
+The pod, dep-httpd-597fc5f696-6ttn4 is displaying this page.
+[root@pod-centos /]# curl http://svc-clusterip-httpd.default.svc.cluster.local
+The pod, dep-httpd-597fc5f696-qw4pf is displaying this page.
+```
+
+This time we managed to curl to our pods using a dns name rather than ip address. Also we didn't need to use an non-standard port either (although that option is available for use, if we need it). 
+
+As you can see, by running curl a few times, we can also see the ClusterIP's loadbalancing feature also working. By the way we're also running this curl command inside a while loop, as part of the centos pods primary command. You can view this output in the logs:
+
+```bash
+$ kubectl logs pod-centos
+Wed Mar 13 12:19:02 UTC 2019
+The pod, dep-httpd-597fc5f696-qw4pf is displaying this page.
+Wed Mar 13 12:19:12 UTC 2019
+The pod, dep-httpd-597fc5f696-6ttn4 is displaying this page.
+Wed Mar 13 12:19:22 UTC 2019
+The pod, dep-httpd-597fc5f696-6ttn4 is displaying this page.
+Wed Mar 13 12:19:32 UTC 2019
+The pod, dep-httpd-597fc5f696-qw4pf is displaying this page.
+```
+
+
+
+
+## DNS Entry structure
+
+We didn't explain how we came up with the url name. Here's the dns name breakdown:
+
+```text
+http://{service.metadata.name}.{target.pod's.namespace.name}.svc.cluster.local
+```
+
+### Some background info
+
+To better understand how the dns lookup worked behind the scenes. We first to look at our container's dns configuration file,which is the resolv.conf file:
+
+```bash
+$ kubectl exec pod-centos -it /bin/bash
+[root@pod-centos /]# cat /etc/resolv.conf 
 nameserver 10.96.0.10
 search default.svc.cluster.local svc.cluster.local cluster.local
 options ndots:5
+
 ```
 
-the content of the resolv.conf file is managed by whatever networking plugin is installed in the kubernetes install, e.g. flannel, weave, calico,...etc. After applying these configs we should now have:
+A pod's resolv.conf file is autogenerated by kubernetes during the pod's launch time. The nameserver's ip address points to the kubernetes internal kube-dns clusterIP service, which in turn forwards dns lookups to Kubernetes's internal coredns pods:
 
 ```bash
-$ kubectl get pods
-NAME                 READY     STATUS    RESTARTS   AGE
-pod-httpd-consumer   1/1       Running   0          23m
-pod-httpd-provider   1/1       Running   0          32m
-$ kubectl get service
-NAME                  CLUSTER-IP       EXTERNAL-IP   PORT(S)    AGE
-kubernetes            10.96.0.1        <none>        443/TCP    1d
-svc-clusterip-httpd   10.101.183.250   <none>        4000/TCP   32m
+$ kubectl get svc -o wide --namespace=kube-system | grep dns
+kube-dns               ClusterIP   10.96.0.10     <none>        53/UDP,53/TCP   3d17h   k8s-app=kube-dns
+
+$ kubectl describe service kube-dns --namespace=kube-system | grep Endpoint
+Endpoints:         172.17.0.2:53,172.17.0.3:53
+Endpoints:         172.17.0.2:53,172.17.0.3:53
+$ kubectl get pods -o wide --namespace=kube-system | grep 172.17.0.2
+coredns-86c58d9df4-zl7j4                   1/1     Running   0          3d17h   172.17.0.2   minikube   <none>           <none>
 ```
 
-The next thing to check is whether our centos container can successfully access the httpd pod. We can check this by simply viewing the container logs:
+The resolv.conf also gives domain's value (default.svc.cluster.local) with our currently logged container's namespace (default) hardcoded in. Therefore when we do an dns lookup from inside the centos container we get:
 
 ```bash
-$ kubectl logs pod-httpd-consumer -c cntr-centos
-Fri Feb 22 17:20:43 UTC 2019
-<html><body><h1>It works!</h1></body></html>
-Fri Feb 22 17:21:03 UTC 2019
-<html><body><h1>It works!</h1></body></html>
-Fri Feb 22 17:21:23 UTC 2019
-.
-.
-...etc
+[root@pod-centos /]# nslookup svc-clusterip-httpd.default.svc.cluster.local
+Server:         10.96.0.10
+Address:        10.96.0.10#53
+
+Name:   svc-clusterip-httpd.default.svc.cluster.local
+Address: 10.99.76.207
 ```
 
-Note, I noticed there is a lag in getting the logs for some reason. So give it a few mins before trying this command. Also notice that I also specified the -c (container) flag followed by the container name. That's only required if you have a multi-container pod, otherwise you can leave it out.
-
-At this point we've only provided pod-to-pod related networking. So at this point we won't be able to access the service externally (e.g. from our macbook). So to fix that, we can just create an aditional service object, but this time as a nodeport service:
-
-```bash
----
-  apiVersion: v1
-kind: Service
-metadata:
-  name: svc-nodeport-apache-webserver
-spec:
-  type: NodePort
-  ports:
-    - port: 3050
-
-      targetPort: 80
-      nodePort: 31000
-  selector:
-    component: apache_webserver
-```
-
-Then it will work:
-
-```bash
-$ minikube ip
-192.168.99.100
-$ curl http://192.168.99.100:31000
-<html><body><h1>It works!</h1></body></html>
-```
-
-So now we have to service abjects associated with the httpd pod, one (ClusterIP) service to enable pod-2-pod communication. And the second (Nodeport) service to enable external-to-pod communication.
-
-Now let's cleanup:
-
-```bash
-$ kubectl delete -f configs/ClusterIP-example
-pod "pod-httpd-consumer" deleted
-pod "pod-httpd-provider" deleted
-service "svc-clusterip-httpd" deleted
-service "svc-nodeport-apache-webserver" deleted
-```
+Just remember, if our httpd pods were in a different namespace to our centos pods, then we would have needed to replace 'default' with the correct namespace name.
 
 
 
-## LoadBalancer Service Type
+## Making Pods Externally accessible
 
-This type of service is used for making pods externally accessible (using cloud specific technologies). E.g. if your kubecluster is running on AWS, and want to make a group of identical pods externally accessible, then you create a loadbalancer object, and that object will end up creating an AWS ELB behind the scenes to route traffic to the pods. 
+At the moment our httpd pods are not externally accessible, which is fine if they are solely intended to be used inside the kube cluster.
 
-LoadBalancer is slowly getting deprecated and is being replaced by the Ingress Service type. 
-
+However if you want the httpd pods to be externally accessible, then just setting up ClusterIP objects alone won't be enough to give you that ability. The recommended way of doing this is by creating another type of service object, the Ingress object. We'll cover that next. 
 
 
 ### Further Reading

@@ -47,7 +47,17 @@ NAME         READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATE
 pod-centos   2/2     Running   0          74m   172.17.0.7   minikube   <none>           <none>
 ```
 
-These containers should be able to talk to each other without needing any further configurations. You'll find is that each container is attached to 2 network interfaces:
+These containers should be able to talk to each other without needing any further configurations. Let's log into one of the containers:
+
+```bash
+
+
+```
+
+Notice that I also specified the -c (container) flag followed by the container name. That's only required when logging into a container in a multi-container pod, so that kubectl knows which container you want to access. If you omit this then kubectl will default to logging into the first container that's listed in the yaml file. With multi-container pods it's really important to only have on primary container, and all other containers act as secondary/supporting/sidecar containers. Meaning that, if the sidecar containers fails, then the pod's main app (primary container) still continues to function. 
+
+
+You'll find is that each container is attached to 2 network interfaces:
 
 ```bash
 [root@pod-centos /]# yum install -q -y net-tools
@@ -174,10 +184,13 @@ pod-nginx   1/1     Running   0          54s   172.17.0.7   minikube   <none>   
 To test this, we need to log into one of the pods, and run curl to the other pod. Let's log into pod-httpd:
 
 ```bash
-kubectl exec pod-httpd  -it /bin/bash
+kubectl exec pod-httpd -it /bin/bash
 root@pod-httpd:/usr/local/apache2# apt-get update
 root@pod-httpd:/usr/local/apache2# apt-get install -y curl
 ```
+
+
+
 
 We also had to install the curl command itself. Before we can perform the test:
 
@@ -234,4 +247,5 @@ search default.svc.cluster.local svc.cluster.local cluster.local
 options ndots:5
 ```
 
-So all we need to do is create dns entries in our internal dns server (kube-dns). That's done by creating service objects. There are different types of service, such as nodePort, and ClusterIP service. We'll cover them later. 
+So all we need to do is create dns entries in our internal dns server (kube-dns). That's done by creating service objects. There are different types of service objects, such as nodePort, and ClusterIP service. We'll cover them later. 
+
