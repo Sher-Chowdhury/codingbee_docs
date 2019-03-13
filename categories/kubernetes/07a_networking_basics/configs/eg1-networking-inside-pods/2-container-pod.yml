@@ -7,12 +7,17 @@ metadata:
     component: centos
 spec:
   containers:
+    - name: cntr-httpd
+      image: httpd:latest
+      ports:
+        - containerPort: 80
     - name: cntr-centos
       image: centos
       command: ["/bin/bash", "-c"]
       args:
         - |
           while true ; do
-            date 
+            date
+            curl http://localhost
             sleep 10 
           done

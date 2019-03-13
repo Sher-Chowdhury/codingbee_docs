@@ -73,7 +73,7 @@ With this in place, you can now do pod-2-pod communication using a dns name. The
 $ kubectl exec pod-centos -it /bin/bash -c cntr-centos
 
 
-[root@pod-centos /]# cat /etc/resolv.conf 
+[root@pod-centos /]# cat /etc/resolv.conf
 nameserver 10.96.0.10
 search default.svc.cluster.local svc.cluster.local cluster.local
 options ndots:5
@@ -123,6 +123,7 @@ As you can see, the nodePort service object not only makes it easier for pod-2-p
 Nodeport is actually rarely used in production, and is mainly used for development purposes only. That's because:
 
 - url endpoint needs to explicitly end with ':{port nubmer}'. That looks ugly, doesn't scale well, and keep tracking of lots of pod numbers would be a nightmare. 
+- You'll end up using a lot of non-standard ports. 
 - all the port numbers requires extra work on the cloud platfrom. 
 
 

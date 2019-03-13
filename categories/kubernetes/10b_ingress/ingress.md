@@ -1,11 +1,6 @@
 # Ingress
 
-Earlier we covered service objects which sets up networking between pods in the same kubecluster, by creating a ClusterIP service, and also how we can make a pod externally accessible by creating a NodePort service. 
-
-However nodeport service isn't recommended in a production environment, and should only be used in dev kubecluster environments. Theres a few reasons for this:
-
-- You end up using a lot of non-standard pods to make externally facing pods accessible. Also keeping track of which port is which can be a nightmare. 
-- You end up with worker nodes listening on lots of ports, at the VM machine level. This isn't a neat solution and it also means that you end up meaning extra work in terms of updating AWS Security Groups to whitelist all these ports.
+Earlier we covered service objects which sets up networking between pods in the same kubecluster, by creating a ClusterIP service, and also how we can make a pod externally accessible by creating a NodePort service. However as mentioned, Nodeport shouldn't be used in a production environment. 
 
 The ideal solution would be to have your worker nodes only listening to standard ports, e.g. port 443 for https. That's possible by Ingress objects. Ingress objects, like services objects is used for setting up networking. Ingress is actually a service type object, but since it's such a big part, it's been spun out into it's own object kind. 
 

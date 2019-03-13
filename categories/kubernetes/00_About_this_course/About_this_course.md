@@ -5,7 +5,7 @@ This course is a follow-along hands-on guide to Kubernetes and cover as much of 
 This course is also a good companion for those who are planning on taking the [Certified Kubernetes Administrator](https://www.cncf.io/certification/cka/) certification.
 
 
-## prereqs
+## Requirements
 
 This is an intermediate level course. You need to know the following:
 
@@ -13,6 +13,7 @@ This is an intermediate level course. You need to know the following:
 - git
 - linux, bash, vim
 - yaml syntax
+- basic networking knowledge, e.g. subnets, netmasks, also things like http is port 80. 
 - already have basic kubernetes knowledge - This isn't a kubernetes beginners course. 
 
 

@@ -14,7 +14,7 @@ First we'll take a look at how to create configmaps and then we'll look at how t
 
 
 
-##  Create configmaps
+##  Create configmaps (eg1-env-vars)
 
 There's a few ways to configmap objects, but we'll create via kube oject yaml file approach.
 
@@ -55,7 +55,7 @@ Events:  <none>
 ```
 
 
-## Feeding configMap data into containers as Environment Variables
+## Feeding configMap data into containers as Environment Variables (eg1-env-vars)
 
 
 This approach is a good option for docker hub images that exposes customisation options via the setting of Environment Variables. Here how to inject env vars via the yaml:
@@ -104,11 +104,9 @@ FruitName=banana
 FruitColor=banana
 ```
 
-## Upload files into containers using ConfigMaps
+## Upload files into containers using ConfigMaps (eg2-volumes)
 
-Configmaps can be used to upload files into your container with the help of non-persistant volumes. These can be anything including 
-
-let's say in our container, we want to create a new folder, /scripts, and in that folder you want to create to shell scripts, then first we create the following configmap to house both shell scripts: 
+Configmaps can be used to upload files into your container with the help of non-persistant volumes. These can be anything including. Let's say in our container, we want to create a new folder, /scripts, and in that folder you want to create to drop in a shell script, then first we create the following configmap to house the shell script: 
 
 ```yaml
 ---
@@ -182,8 +180,9 @@ Thu Mar  7 13:31:51 UTC 2019
 ...etc
 ```
 
+# Targeted configmaps (eg3-subpaths)
 
-In this example we used /scripts as our mountpount. If we wanted to upload the shell scripts into an existing folder, e.g. /etc, then you would need to set the mountpoint to /etc. However, that wouldn't working becuase, any existing files in /etc will disappear during the mounting process and would cause the container to fail.
+In the above example we used /scripts as our mountpount. If we wanted to upload the shell scripts into an existing folder, e.g. /etc, then you would need to set the mountpoint to /etc. However, that wouldn't working becuase, any existing files in /etc will disappear during the mounting process and would cause the container to fail.
 
 
 
