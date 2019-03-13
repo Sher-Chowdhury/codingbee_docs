@@ -17,10 +17,10 @@ spec:
             backend:
               serviceName: svc-clusterip-httpd
               servicePort: 4000
-    - host: nginx-demo.com          # we specify a domain name this time. 
+    - host: caddy-demo.com          # we specify a domain name this time. 
       http:
         paths:
           - path: /
             backend:
-              serviceName: svc-clusterip-nginx
-              servicePort: 5000
+              serviceName: svc-clusterip-caddy
+              servicePort: 2015

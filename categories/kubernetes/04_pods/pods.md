@@ -86,7 +86,9 @@ $ kubectl exec -it pod-httpd -c cntr-httpd /bin/bash
 root@pod-httpd:/usr/local/apache2#
 ```
 
-This command is quite similar to the docker command. In case you want to access the bash terminal using the docker approach, then you can do that too, by ssh'ing into the minikube vm:
+This command is quite similar to the docker command. In your case, you might need to replace '/bin/bash' with something else,e.g. '/bin/sh', depending on the image you used to build your container.
+
+In case you want to access the bash terminal using the docker approach, then you can do that too, by ssh'ing into the minikube vm:
 
 ```bash
 $ minikube ssh

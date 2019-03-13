@@ -8,4 +8,4 @@ spec:
     - port: 4000
       targetPort: 80
   selector:
-    component: apache_webserver
+    component: httpd_pod

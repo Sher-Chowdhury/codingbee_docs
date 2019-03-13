@@ -161,7 +161,7 @@ $ curl -Lk  http://192.168.99.102
 
 ## Ingress Objects Demo
 
-In this demo, we're going to start bringing together a lot of the topics covered earlier. In this demo we're going to use deployment objects to create 2 groups of pods, the 1st group will a bunch of apache pods, the second will be a group of nginx pods. All the pods from both groups will be listenion on port 80. Each group will have it's own ClusterIP object sitting in front of it. We'll then create an Ingress object that sit's in front of both ClusterIP objects and it will forward incoming external requests to the ClusterIP objects. The Ingress object will decide which ClusterIP object it will forward traffic to based on the requesting url address.
+In this demo, we're going to start bringing together a lot of the topics covered earlier. In this demo we're going to use deployment objects to create 2 groups of pods, the 1st group will a bunch of apache pods, the second will be a group of Caddy pods. Caddy is a webserver software that's similar to Apache/httpd, but written Golang. The Apache pods will be listening on port 80, and the caddy pods by default will listen on pod 2015. Each group will have it's own ClusterIP object sitting in front of it. We'll then create an Ingress object that sit's in front of both ClusterIP objects and it will forward incoming external requests to the ClusterIP objects. The Ingress object will decide which ClusterIP object it will forward traffic to based on the requesting url address.
 
 
 So let's start by creating our 2 deployments:
@@ -201,7 +201,7 @@ svc-clusterip-httpd   ClusterIP   10.101.204.16   <none>        4000/TCP   20s  
 svc-clusterip-nginx   ClusterIP   10.101.250.15   <none>        5000/TCP   11s     component=nginx_webserver
 ```
 
-These deployments and ClusterIP objects are stuff we've covered before, so there's nothing new here. It's the next part that's new, which is that we create the . 
+These deployments and ClusterIP objects are stuff we've covered before, so there's nothing new here. It's the next part that's new, which is that we create the Ingress object: 
 
 
 ```yaml
@@ -215,8 +215,8 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
-spec: 
-  rules: 
+spec:
+  rules:
     - host: httpd-demo.com    # we specify a domain name this time. 
       http:
         paths:
@@ -224,83 +224,96 @@ spec:
             backend:
               serviceName: svc-clusterip-httpd
               servicePort: 4000
-    - host: nginx-demo.com          # we specify a domain name this time. 
+    - host: caddy-demo.com          # we specify a domain name this time. 
       http:
         paths:
           - path: /
             backend:
-              serviceName: svc-clusterip-nginx
-              servicePort: 5000
+              serviceName: svc-clusterip-caddy
+              servicePort: 2015
 ```
 
-Here we specify to rules. One that forwards traffic to a httpd ClusterIP, and the other to an nginx ClusterIP. 
+There are a lot of [Ingress Controller Annotation settings](https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md) available that allows you to customise your Kubernetes setup. This yaml file creates:
 
-
-
-
-
-
-We also have to add these custom domains into our local hosts file:
 
 ```bash
-$ echo "$(minikube ip)   nginx-demo.com" >> /etc/hosts
-$ echo "$(minikube ip)   httpd-demo.com" >> /etc/hosts
+$ kubectl get ingresses -o wide
+NAME              HOSTS                           ADDRESS     PORTS   AGE
+ingress-service   httpd-demo.com,caddy-demo.com   10.0.2.15   80      105s
+
+
+$ kubectl describe ingresses
+Name:             ingress-service
+Namespace:        default
+Address:          10.0.2.15
+Default backend:  default-http-backend:80 (172.17.0.5:8080)
+Rules:
+  Host            Path  Backends
+  ----            ----  --------
+  httpd-demo.com  
+                  /   svc-clusterip-httpd:4000 (<none>)
+  caddy-demo.com  
+                  /   svc-clusterip-caddy:2015 (<none>)
+Annotations:
+  kubectl.kubernetes.io/last-applied-configuration:  {"apiVersion":"extensions/v1beta1","kind":"Ingress","metadata":{"annotations":{"kubernetes.io/ingress.class":"nginx","nginx.ingress.kubernetes.io/force-ssl-redirect":"false","nginx.ingress.kubernetes.io/rewrite-target":"/","nginx.ingress.kubernetes.io/ssl-redirect":"false"},"name":"ingress-service","namespace":"default"},"spec":{"rules":[{"host":"httpd-demo.com","http":{"paths":[{"backend":{"serviceName":"svc-clusterip-httpd","servicePort":4000},"path":"/"}]}},{"host":"caddy-demo.com","http":{"paths":[{"backend":{"serviceName":"svc-clusterip-caddy","servicePort":2015},"path":"/"}]}}]}}
+
+  kubernetes.io/ingress.class:                     nginx
+  nginx.ingress.kubernetes.io/force-ssl-redirect:  false
+  nginx.ingress.kubernetes.io/rewrite-target:      /
+  nginx.ingress.kubernetes.io/ssl-redirect:        false
+Events:
+  Type    Reason  Age    From                      Message
+  ----    ------  ----   ----                      -------
+  Normal  CREATE  2m24s  nginx-ingress-controller  Ingress default/ingress-service
+  Normal  UPDATE  106s   nginx-ingress-controller  Ingress default/ingress-service
+
 ```
 
-Now we apply the above configs:
+Now we're ready to test this out, from our macbook we run:
 
 ```bash
-$ kubectl apply -f configs/ingress-example2
-ingress.extensions/ingress-service created
-pod/pod-httpd-provider created
-pod/pod-nginx-provider created
-service/svc-clusterip-httpd created
-service/svc-clusterip-nginx created
+$ minikube ip
+192.168.99.105
+$ curl http://192.168.99.105
+default backend - 404
 ```
 
-Now notice that our nginx pod has whitelisted the following domains/hosts:
+This is the nginx forward proxy reporting an error, (this error message comes from the 'Default backend' specified above, which is also configurable). It errored because in our example, the nginx-forward proxy only works when the request is made using a dns url. These urls are just our demo urls which are not available on any public dns servers, we have to therefore simulate them, which we can do using curl like this:
 
 ```bash
-$ kubectl get ingress
-NAME              HOSTS                           ADDRESS   PORTS   AGE
-ingress-service   httpd-demo.com,nginx-demo.com             80      32s
+$ curl http://192.168.99.105 -H "Host: caddy-demo.com"
+Hello I'm the caddy pod, dep-caddy-68df997cb7-4gs5c, and I'm displaying this page.
+$ curl http://192.168.99.105 -H "Host: caddy-demo.com"
+Hello I'm the caddy pod, dep-caddy-68df997cb7-9mxjl, and I'm displaying this page.
+
+
+$ curl http://192.168.99.105 -H "Host: httpd-demo.com"
+The is the Apache/httpd pod, dep-httpd-64f4d946d7-ccfwn, which is displaying this page.
+$ curl http://192.168.99.105 -H "Host: httpd-demo.com"
+The is the Apache/httpd pod, dep-httpd-64f4d946d7-8xssp, which is displaying this page.
 ```
 
-Now we try this out:
+Notice here that the loadbalancing feature is also working. 
+
+
+You can simulate this urls by adding the demo urls into our local hosts file:
 
 ```bash
-$ curl -Lk  http://nginx-demo.com
-<!DOCTYPE html>
-<html>
-<head>
-<title>Welcome to nginx!</title>
-<style>
-    body {
-        width: 35em;
-        margin: 0 auto;
-        font-family: Tahoma, Verdana, Arial, sans-serif;
-    }
-</style>
-</head>
-<body>
-<h1>Welcome to nginx!</h1>
-<p>If you see this page, the nginx web server is successfully installed and
-working. Further configuration is required.</p>
+echo "$(minikube ip)   caddy-demo.com" >> /etc/hosts
+echo "$(minikube ip)   httpd-demo.com" >> /etc/hosts
+```
 
-<p>For online documentation and support please refer to
-<a href="http://nginx.org/">nginx.org</a>.<br/>
-Commercial support is available at
-<a href="http://nginx.com/">nginx.com</a>.</p>
+Now we can retest with a simpler curl command
 
-<p><em>Thank you for using nginx.</em></p>
-</body>
-</html>
-
-
-
-
-$ curl -Lk  http://httpd-demo.com
-<html><body><h1>It works!</h1></body></html>
+```bash
+$ curl http://httpd-demo.com
+The is the Apache/httpd pod, dep-httpd-64f4d946d7-8xssp, which is displaying this page.
+$ curl http://httpd-demo.com
+The is the Apache/httpd pod, dep-httpd-64f4d946d7-ccfwn, which is displaying this page.
+$ curl http://caddy-demo.com
+Hello I'm the caddy pod, dep-caddy-68df997cb7-4gs5c, and I'm displaying this page.
+$ curl http://caddy-demo.com
+Hello I'm the caddy pod, dep-caddy-68df997cb7-9mxjl, and I'm displaying this page.
 ```
 
 Success!

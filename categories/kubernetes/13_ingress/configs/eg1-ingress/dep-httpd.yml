@@ -6,7 +6,7 @@ metadata:
   labels:
     component: apache_webserver
 spec:
-  replicas: 3 
+  replicas: 2 
   selector:
     matchLabels:
       component: httpd_pod
@@ -23,5 +23,5 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - |
-              /bin/echo "The pod, $HOSTNAME is displaying this page." > /usr/local/apache2/htdocs/index.html
+              /bin/echo "The is the Apache/httpd pod, $HOSTNAME, which is displaying this page." > /usr/local/apache2/htdocs/index.html
               /usr/local/bin/httpd-foreground  
