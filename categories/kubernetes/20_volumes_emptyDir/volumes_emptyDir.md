@@ -1,6 +1,6 @@
 # emptyDir Volumes
 
-When a container is terminated, then the data inside the container (if any) also gets deleted. For example if a mysql database is running inside a container, then the chances are that you don't want to lose that data when the mysql container dies for any reason. That's where Kubernetes volumes comes into the picture. Volumes let's you store your data outside of your containers, your containers can then mount these volumes in the same way you mount block devices on a Linux machine. There are a lot of different types of Kubernetes volumes, one of the most basic type is the [emptyDir volume](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir). 
+When a container is terminated, then the data inside the container (if any) also gets deleted. If you have a mysql database running inside a container, then the chances are that you don't want to lose that data when the mysql container dies for any reason. That's where Kubernetes volumes comes into the picture. Volumes let's you store your data outside of your containers, your containers can then mount these volumes in the same way you mount block devices on a Linux machine. There are a lot of different types of Kubernetes volumes, one of the most basic type is the [emptyDir volume](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir). 
 
 emptyDir volumes exists outside a container but inside the pod. This setup has the following characteristics:
 
