@@ -1,3 +1,12 @@
+## Possible Kubernetes Titles
+
+- kubernetes deep dive
+- Kubernete - Hands on
+- Kubernetes in Action
+- Kubernetes by example
+
+
+
 ## The aim of this course
 
 This course is a follow-along hands-on guide to Kubernetes and cover as much of the kubernetes feature as possible, so that you get comfortable using kubernetes for usual day-to-day work. 
@@ -22,7 +31,7 @@ This is an intermediate level course. You need to know the following:
 - vscode
 - brew
 - git
-- 
+- virtualbox 
 
 
 
@@ -31,6 +40,7 @@ This is an intermediate level course. You need to know the following:
 - We don't spend that much time going over concepts and theories. The hope is that you'll understand and learn kubernetes faster by seeing it in action. 
 - Kubernetes installation - only focusing no minikube on macs
 - docker, this won't cover a lot about docker
+- 
 
 ## Course guide
 

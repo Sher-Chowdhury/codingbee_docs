@@ -1,6 +1,6 @@
 ---
 apiVersion: apps/v1
-kind: ReplicaSet 
+kind: ReplicaSet
 metadata:
   name: rs-httpd
   labels:
@@ -25,7 +25,7 @@ spec:
           image: httpd:latest 
           ports:
             - containerPort: 80
-          command: ["/bin/bash", "-c"]
+          command: ["/bin/bash", "-c"]     # We have performed a command override here for testing purposes.
           args:
             - |
               /bin/echo "The pod, $HOSTNAME is displaying this page." > /usr/local/apache2/htdocs/index.html

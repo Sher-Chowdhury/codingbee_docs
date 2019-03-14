@@ -30,7 +30,14 @@ spec:
           image: httpd:latest
           ports:
             - containerPort: 80
+          command: ["/bin/bash", "-c"]     # We have performed a command override here for testing purposes.
+          args:
+            - |
+              /bin/echo "The pod, $HOSTNAME is displaying this page." > /usr/local/apache2/htdocs/index.html
+              /usr/local/bin/httpd-foreground
 ```
+
+Notice here that we have done a 'command override'. The official [httpd docker image](https://github.com/docker-library/httpd) comes built in with a command to run during the container's launchtime, this default command is `/usr/local/bin/httpd-foreground`. However we wanted to create a custom index.html file to showcase how replicasets work in this demo. We've therefore opted to create the index.html file by running a 'echo' command using the pod.spec.containers.command and pod.spec.containers.args settings. This ends up overriding the default command, which is not what we wanted. So to counter this problem, we've appended `/usr/local/bin/httpd-foreground` to the end of our args setting, so that it still gets executed during the container's launch time. This is a bit of a hacky approach, there are better ways to do this, such as using configmaps, volumes, and postStart hooks. We'll cover these approaches later.
 
 This creates the replicaset:
 

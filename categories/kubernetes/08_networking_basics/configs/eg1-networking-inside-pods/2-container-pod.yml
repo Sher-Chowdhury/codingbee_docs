@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod-centos
+  name: pod-demo      # both container's hostname will be set to this
   labels:
     component: centos
 spec:

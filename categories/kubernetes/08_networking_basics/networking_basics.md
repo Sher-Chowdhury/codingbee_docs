@@ -9,7 +9,7 @@ In Kubernetes, 'services' is actually all about networking. In Docker world, whe
 
   
   
-## A pod's internal networking
+## A pod's internal networking (eg1-networking-inside-pods)
 
 If you have 2+ containers inside a single pod, then these containers can reach each other via localhost. Let's say we create the following pod:
 
@@ -18,7 +18,7 @@ If you have 2+ containers inside a single pod, then these containers can reach e
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod-centos
+  name: pod-demo      # both container's hostname will be set to this
   labels:
     component: centos
 spec:
@@ -33,41 +33,44 @@ spec:
       args:
         - |
           while true ; do
-            date 
+            date
             curl http://localhost
-            sleep 10 
+            sleep 10
           done
 ```
 
-This defines a single pod that's housing 2 containers (and in our case kubernetes has auto-assigned an IP of 172.17.0.7):
+This defines a single pod that's housing 2 containers (and in our case kubernetes has auto-assigned an IP of 172.17.0.7 to the pod):
 
 ```bash
 $ kubectl get pods -o wide
-NAME         READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
-pod-centos   2/2     Running   0          74m   172.17.0.7   minikube   <none>           <none>
+NAME       READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+pod-demo   2/2     Running   0          28m   172.17.0.7   minikube   <none>           <none>
 ```
 
-These containers should be able to talk to each other without needing any further configurations. Let's log into one of the containers:
+These containers should be able to talk to each other without needing any further configurations. Let's start by logging into one of the containers:
 
 ```bash
-
+$ kubectl exec pod-demo -c cntr-centos  -it /bin/bash
+[root@pod-demo /]#
 
 ```
 
-Notice that I also specified the -c (container) flag followed by the container name. That's only required when logging into a container in a multi-container pod, so that kubectl knows which container you want to access. If you omit this then kubectl will default to logging into the first container that's listed in the yaml file. With multi-container pods it's really important to only have on primary container, and all other containers act as secondary/supporting/sidecar containers. Meaning that, if the sidecar containers fails, then the pod's main app (primary container) still continues to function. 
+Notice that I also specified the -c (container) flag followed by the container name. That's only required when logging into a container in a multi-container pod, so that kubectl knows which container you want to access. If you omit this then kubectl will default to logging into the first container that's listed in the yaml file. With multi-container pods it's really important to only have on primary container, and all other containers act as secondary/supporting/sidecar containers. Meaning that, if the sidecar containers fails, then the pod's main app (primary container) still continues to function.
 
 
-You'll find is that each container is attached to 2 network interfaces:
+
+Also notice that the containers hostname is the same as the pod's name:
 
 ```bash
-[root@pod-centos /]# yum install -q -y net-tools
-warning: /var/cache/yum/x86_64/7/base/packages/net-tools-2.0-0.24.20131004git.el7.x86_64.rpm: Header V3 RSA/SHA256 Signature, key ID f4a80eb5: NOKEY
-Public key for net-tools-2.0-0.24.20131004git.el7.x86_64.rpm is not installed
-Importing GPG key 0xF4A80EB5:
- Userid     : "CentOS-7 Key (CentOS 7 Official Signing Key) <security@centos.org>"
- Fingerprint: 6341 ab27 53d7 8a78 a7c2 7bb1 24c6 a8a7 f4a8 0eb5
- Package    : centos-release-7-6.1810.2.el7.centos.x86_64 (@CentOS)
- From       : /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+[root@pod-demo /]# hostname
+pod-demo
+```
+
+All containers in a pod are actually assigned the same hostname, which is the pod's hostname. You'll find is that each container is attached to 2 network interfaces:
+
+```bash
+[root@pod-centos /]# yum install -q -y net-tools      # we have to install ifconfig before we can use it. 
+
 [root@pod-centos /]# ifconfig
 eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 172.17.0.7  netmask 255.255.0.0  broadcast 172.17.255.255
