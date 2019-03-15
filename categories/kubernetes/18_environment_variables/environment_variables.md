@@ -40,6 +40,7 @@ This seems to have worked:
 $ kubectl get pods
 NAME           READY   STATUS    RESTARTS   AGE
 pod-mysql-db   1/1     Running   0          39s
+
 $ kubectl get svc
 NAME                           TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
 kubernetes                     ClusterIP   10.96.0.1       <none>        443/TCP          4m46s
@@ -56,7 +57,7 @@ root@pod-mysql-db:/# env | grep MYSQL_DATABASE
 MYSQL_DATABASE=dummy_db
 ```
 
-So it looks likes this has worked and it means that these env var should have got used by the [docker images](https://github.com/docker-library/mysql/blob/master/8.0/docker-entrypoint.sh).
+So it looks likes this has worked and it means that these environment variables should be available to the [Docker image's entrypoint script](https://github.com/docker-library/mysql/blob/master/8.0/docker-entrypoint.sh).
 
 But the only way to know for sure is to take a look inside the pod by creating a mysql session inside it.
 

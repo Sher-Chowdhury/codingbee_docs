@@ -72,17 +72,17 @@ spec:
   containers:
     - name: cntr-centos
       image: centos
-      env:
-        - name: FruitName
-          valueFrom:               # this syntax is similar to how
-            configMapKeyRef:       # we injected secrets into containers
-              name: fav-fruit
-              key: fruit.name
+      env: 
+        - name: FruitName    # This sets the name of the environment variable inside the container. 
+          valueFrom:
+            configMapKeyRef:
+              name: fav-fruit  # this sets the name of the configmap to read from. 
+              key: fruit.name  # this picks out the particular key value from the chosen configmap. 
         - name: FruitColor
           valueFrom:
             configMapKeyRef:
               name: fav-fruit
-              key: fruit.name
+              key: fruit.color
       command: ["/bin/bash", "-c"]
       args:
         - while true ; do
@@ -101,7 +101,7 @@ To check if that has worked, we do:
 $ kubectl exec pod-centos -c cntr-centos -it /bin/bash
 [root@pod-centos /]# env | grep Fruit
 FruitName=banana
-FruitColor=banana
+FruitColor=yellow
 ```
 
 ## Upload files into containers using ConfigMaps (eg2-volumes)
@@ -182,11 +182,7 @@ Thu Mar  7 13:31:51 UTC 2019
 
 # Targeted configmaps (eg3-subpaths)
 
-In the above example we used /scripts as our mountpount. If we wanted to upload the shell scripts into an existing folder, e.g. /etc, then you would need to set the mountpoint to /etc. However, that wouldn't working becuase, any existing files in /etc will disappear during the mounting process and would cause the container to fail.
-
-
-
-So let's walkthrough a slightly modified example:
+In the above example we used /scripts as our mountpount. If we wanted to upload the shell scripts into an existing folder, e.g. /etc, then you would need to set the mountpoint to /etc. However, that wouldn't working becuase, any existing files in /etc would become inaccessible due to the mounting process. So let's walkthrough a slightly modified example:
 
 ```yaml
 ---
