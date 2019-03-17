@@ -73,8 +73,8 @@ spec:
       image: httpd
       ports:
         - containerPort: 80
-      livenessProbe:            # this section defines the healthcheck. 
-        httpGet:
+      livenessProbe:            # this section defines the healthcheck.
+        httpGet:     # there's also an 'exec' setting available.
           path: /
           port: 80
         initialDelaySeconds: 10
@@ -82,8 +82,8 @@ spec:
         successThreshold: 1
         periodSeconds: 30
         timeoutSeconds: 10
-      readinessProbe:            # this section defines the healthcheck. 
-        httpGet:
+      readinessProbe:            # this section defines the healthcheck.
+        httpGet:     # there's also an 'exec' setting available.
           path: /
           port: 80
         initialDelaySeconds: 10

@@ -4,9 +4,9 @@ kind: StatefulSet
 metadata:
   name: sts-httpd
   labels:
-    component: httpd_webserver
+    app: httpd_webserver
 spec:
-  serviceName: httpd-service
+  serviceName: httpd-service     # Need to add this in stateful sets
   replicas: 2 
   selector:
     matchLabels:
@@ -15,10 +15,16 @@ spec:
     metadata:
       labels:
         component: httpd_webserver
-    spec: 
+    spec:
+      volumes: 
+        - name: httpd-data-storage 
+          persistentVolumeClaim:       
+            claimName: pvc-httpd
       containers:
         - name: cntr-httpd
           image: httpd:2.4.37
-#          image: httpd:2.4.38
+          volumeMounts:
+            - name: httpd-data-storage
+              mountPath: /usr/local/apache2/htdocs/
           ports:
             - containerPort: 80

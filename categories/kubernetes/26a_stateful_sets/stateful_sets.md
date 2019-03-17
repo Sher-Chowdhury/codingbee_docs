@@ -1,6 +1,14 @@
 # Stateful Sets
 
-StatefullSets are similar to deployments, but have some differences:
+Earlier we came across deployments which are used to manage stateless pods, i.e. pods that don't need any persistant data. 
+We also saw that deployments can also manage stateful pods, by taking advantage of Persistant Volumes for externally storing a pod's persistant data. However what if that persistant data relies on the pod's hostname (which in turn is the pod's name) to be static as well as the container's ip address (which in turn is the pods ip addresss) to be static too? Deployment provisioned (and rebuilt) pods have deploymentname-randomstring naming convention. They also gets randomly assigned ip address during rebuilds.
+
+
+
+That's where Statefull Sets comes into the picture. StatefullSets are like deployments, but with a few important differences:
+
+
+
 
 - pods built with deployments follows a podname-randomstring convention. But in stateful sets it has podname-0, podname-1, podname-3,...etc namining convention
 - stateful sets pods comes with builtin persistant storage. The volumes exists even after scaling down

@@ -34,7 +34,7 @@ Need to purchase exam via the cncf website, to be eligible for a free retake. (s
 1. Always start by running the following to get autocompletion working:
 
 ```bash
-source <(kubectl completion bash)
+source <(kubectl completion bash) # see the cheatsheet page
 ```
 
 2. quick create yaml file templates:
@@ -45,6 +45,13 @@ source <(kubectl completion bash)
 kubectl expose pod podname --type=NodePort --name servicename -o yaml --dry-run
 kubectl create secret generic mysql-secrets --from-literal MysqlRootPassword=password123 --dry-run -o yaml
 ```
+
+3. If pods keeps dying, run the following command to see the previously failed pod's main container log:
+
+```bash
+kubectl logs podname --previous
+```
+
 
 You can also find samples in the api documentations:
 
