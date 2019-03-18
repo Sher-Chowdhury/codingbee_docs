@@ -1,0 +1,28 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-httpd
+  labels:
+    app: apache_webserver
+spec:
+  affinity:
+    nodeAffinity:
+      - weight: 10
+        preferredDuringSchedulingIgnoredDuringExecution:
+          preference:
+            - matchExpressions: 
+                - key: ec2InstanceType
+                  operator: In
+                  values:
+                    - M1
+                    - M2
+  containers:
+    - name: cntr-httpd
+      image: httpd:latest
+      ports:
+        - containerPort: 80
+
+
+
+
