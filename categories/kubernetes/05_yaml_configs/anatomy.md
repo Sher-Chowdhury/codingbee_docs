@@ -65,7 +65,7 @@ DESCRIPTION:
 ```
 
 
-**metadata:** Data that helps uniquely identify the object. metadata.name is used to assign a name to the object. It's also used to link up objects together with the help of the metadata.labels data.
+**metadata:** Data that helps uniquely identify the object. metadata.name is used to assign a name to the object. metadata.labels is also another really important feature. It not only lets you organise your resources, but it also offers a means to filter your resources, and can be used as a way to refer to a group of resources. 
 
 **spec:** The content of this depends on the kind of object in question. Api specifies what structure+content this section should hold.
 

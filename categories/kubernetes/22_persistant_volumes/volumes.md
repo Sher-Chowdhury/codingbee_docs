@@ -58,9 +58,11 @@ However in other workplaces, the pod ceator may have full rights+approvals to cr
 
 In this approach, you can get kubernetes to create an EBS volume for you on-demand, i.e. [dynamic provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/). This involves creating 3 types of Kubernetes objects:
 
-- [StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/) object
+- [StorageClass](https://kubernetes.io/docs/concepts/storage/storage-classes/) object - this object is specifically used by PVC to help create PV. If you manually create the PV, then you can attach the PV to the PVC and skip needing the StorageClass. 
 - [Persistent Volume Claim (PVC)](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) object
 - Persistant Volume object
+
+PVC has a 1-2-1 mapping to a PV. 
 
 
 Here's the steps involved:
