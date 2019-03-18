@@ -8,8 +8,8 @@ metadata:
 spec:
   affinity:
     nodeAffinity:
-      - weight: 10
-        preferredDuringSchedulingIgnoredDuringExecution:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 10
           preference:
             - matchExpressions: 
                 - key: ec2InstanceType
