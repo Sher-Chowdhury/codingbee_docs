@@ -6,7 +6,7 @@ metadata:
   labels:
     app: apache_webserver
 spec:
-  affinity:
+  affinity:                # Added this section
     nodeAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 10
