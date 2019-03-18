@@ -52,4 +52,71 @@ kube-worker1   Ready    <none>   4m28s   v1.13.4   10.0.2.15     <none>        U
 kube-worker2   Ready    <none>   2m59s   v1.13.4   10.0.2.15     <none>        Ubuntu 16.04.5 LTS   4.4.0-131-generic   docker://18.6.1
 ```
 
+The daemonset yaml file looks like this, it looks a lot like a replicaset:
+
+
+```yaml 
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ds-httpd
+  labels:
+    app: httpd_webserver
+spec:
+  selector:
+    matchLabels:
+      app: httpd_webserver
+  template:
+    metadata:
+      labels:
+        app: httpd_webserver
+    spec: 
+      containers:
+        - name: cntr-httpd
+          image: httpd:latest 
+          ports:
+            - containerPort: 80
+```
+
+
+
+
+
+Since our kubecluster has 2 worker nodes, it results in 2 pods being created even though we didn't specify any replicas:
+
+```yaml
+# kubectl get ds -o wide
+NAME       DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE   CONTAINERS   IMAGES         SELECTOR
+ds-httpd   2         2         2       2            2           <none>          47s   cntr-httpd   httpd:latest   app=httpd_webserver
+
+# kubectl get pods -o wide
+NAME             READY   STATUS    RESTARTS   AGE   IP            NODE           NOMINATED NODE   READINESS GATES
+ds-httpd-jkc6r   1/1     Running   0          62s   192.168.1.2   kube-worker1   <none>           <none>
+ds-httpd-mtqcc   1/1     Running   0          62s   192.168.2.2   kube-worker2   <none>           <none>
+
+```
+
+
+
+
+
+# Deploying DaemonSet to some nodes using nodeSelector
+
+You may want to deploy a particular daemonset on a subset of worker nodes, e.g. all nodes of ec2 instance type of M3. You can do that by assiging arbitrary labels to your pods:
+
+
+```bash
+$ kubectl label nodes kube-worker2 ec2InstanceType=M3
+node/kube-worker2 labeled
+
+
+$ kubectl get nodes --show-labels
+NAME           STATUS   ROLES    AGE   VERSION   LABELS
+kube-master    Ready    master   81m   v1.13.4   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/hostname=kube-master,node-role.kubernetes.io/master=
+kube-worker1   Ready    <none>   77m   v1.13.4   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/hostname=kube-worker1
+kube-worker2   Ready    <none>   75m   v1.13.4   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,ec2InstanceType=M3,kubernetes.io/hostname=kube-worker2
+```
+
+Then use the ds.spec.template.spec.nodeSelector setting in your yaml file to apply the restriction:
 
