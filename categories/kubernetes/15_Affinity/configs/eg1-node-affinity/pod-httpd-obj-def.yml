@@ -11,12 +11,12 @@ spec:
       preferredDuringSchedulingIgnoredDuringExecution:
         - weight: 10
           preference:
-            - matchExpressions: 
-                - key: ec2InstanceType
-                  operator: In
-                  values:
-                    - M1
-                    - M2
+            matchExpressions: 
+              - key: ec2InstanceType
+                operator: In
+                values:
+                  - M1
+                  - M2
   containers:
     - name: cntr-httpd
       image: httpd:latest
