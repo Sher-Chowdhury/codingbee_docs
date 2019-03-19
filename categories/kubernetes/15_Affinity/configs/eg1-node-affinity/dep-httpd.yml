@@ -1,0 +1,37 @@
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: dep-httpd
+  labels:
+    app: apache_webserver
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: httpd
+  template:
+    metadata:
+      labels:
+        component: httpd
+    spec:
+      containers:
+        - name: cntr-httpd
+          image: httpd:latest
+          affinity:                # Added this section
+            nodeAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 10
+                  preference:
+                    matchExpressions: 
+                      - key: ec2InstanceType
+                        operator: In
+                        values:
+                          - M1
+                          - M2
+          ports:
+            - containerPort: 80
+
+
+
+

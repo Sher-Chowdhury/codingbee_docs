@@ -1,9 +1,9 @@
 # Affinity and Anti-Affinity
 
-We came across nodeSelector as part of looking at deamonsets. [Affinity/Anti-Affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) can do the same thing as nodeSelector but also has a lot more features and customisations:
+We came across nodeSelector as part of looking at deamonsets. [Affinity/Anti-Affinity](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity) can do the same thing as a nodeSelector but also has more capabilities:
 
-1. More versatile label selection method - e.g. instead of key=value label match. You can just specify deploy/dont-deploy on nodes that has a key called 'xxx'. See `pod.spec.affinity.nodeAffinity`
-2. Specify preference (rather than hard rules) - So if no suitable deployment target is found, kubernetes will deploy it anyway to non-mathing targets, since it's more to have pods to exist on not existing in the first place. e.g. see `pod.spec.affinity.podAffinity.preferredDuringSchedulingIgnoredDuringExecution`
+1. More versatile label selection method - e.g. instead of a simple key=value label match. You can just specify deploy/dont-deploy on nodes that has a key with a certain and ignoring what the key's value is. Or you can specify a list of valid values for a given key.  See `pod.spec.affinity.nodeAffinity`
+2. Specify preference (rather than hard rules) - So if no suitable deployment target is found, kubernetes will deploy it anyway to non-mathing targets, since it's more important for the pod(s) to exist than having those pods running on non-preferred worker, see `pod.spec.affinity.podAffinity.preferredDuringSchedulingIgnoredDuringExecution`
 3. Prevent particular pods from running on the same worker node (co-locating), based on labels. See `pod.spec.affinity.podAntiAffinity`.
 
 
@@ -108,3 +108,28 @@ pod-httpd   1/1     Running   0          7s    192.168.2.4   kube-worker2   <non
 ```
 
 If you have created a pod cluster via a controller, e.g. deployment, then you can trigger a rebuild by manually deleting one pod at a time.
+
+We just saw a soft rule (preference) in action. If you want a hard rule then use `pod.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution` instead. This does the same job as nodeSelector but with more advanced customisation. 
+
+
+## preferredDuringSchedulingIgnoredDuringExecution weights
+
+The 'weight' setting is something specific to soft/preference rules. For each preference rule a node matches, it receives a score equal to the weight. So if a certain node matches multiple preferences then it scores higher, and is more likely to have the pods deployed to them. 
+
+
+## Built-in node labels
+
+If you take a look at the node labels again:
+
+```bash
+# kubectl get nodes --show-labels
+NAME           STATUS   ROLES    AGE   VERSION   LABELS
+kube-master    Ready    master   16h   v1.13.4   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/hostname=kube-master,node-role.kubernetes.io/master=
+kube-worker1   Ready    <none>   16h   v1.13.4   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/hostname=kube-worker1
+kube-worker2   Ready    <none>   16h   v1.13.4   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,ec2InstanceType=M2,kubernetes.io/hostname=kube-worker2
+```
+
+You'll see that the nodes are already tagged with a few labels by default. You can use these built-in labels as part of your Affinity/Anti-Affinity definitions if they meet your needs.  
+
+
+
