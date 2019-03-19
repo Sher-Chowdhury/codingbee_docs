@@ -16,7 +16,7 @@ spec:
         component: httpd
     spec:
       affinity:
-        podAffinity:                                       # here we set the podaffinity setting
+        podAntiAffinity:                                       # Just need to change this line to do the reverse
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchLabels:

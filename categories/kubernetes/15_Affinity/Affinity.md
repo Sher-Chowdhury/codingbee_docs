@@ -184,7 +184,7 @@ kube-worker2   Ready    <none>   16h   v1.13.4   beta.kubernetes.io/arch=amd64,b
 You'll see that the nodes are already tagged with a few labels by default. You can use these built-in labels as part of your Affinity/Anti-Affinity definitions if they meet your needs. These builtin node labels are often used in conjunction with podAffinity
 
 
-## Inter-pod affinity and anti-affinity
+## podaffinity
 
 Sometimes you might want 2 or more different pods running on the same worker node. For example you might want your wordpress pod and the wordpress's mysql pod running on the same worker, in order to reduce network latency when your wordpress pod talks to the mysql pod. This can be done using the `pod.spec.affinity.podAffinity` setting. This setting can be used to co-locate pods in the same (aws availabity) zone as well as node.
 
@@ -219,12 +219,12 @@ spec:
         component: httpd
     spec:
       affinity:
-        podAffinity:                                      # here we set the podaffinity setting
+        podAffinity:                                       # here we set the podaffinity setting
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchLabels:
                   component: mysql_db_server
-              topologyKey: "kubernetes.io/hostname"        # Here we specify an acceptable node key constraint. 
+              topologyKey: kubernetes.io/hostname        # This is used to target a single or group of nodes
       containers:
         - name: cntr-httpd
           image: httpd:latest
@@ -233,6 +233,22 @@ spec:
 ```
 
 
+The 'matchLabels' section is used to identify which pod you want your pod to be co-located with, the topologyKey setting specifies to which extent you want to what extent you want the co-location to be. In our case we used one of the builtin node labels to specify that we want to co-locate on the exact same node (based on hostname) that the mysql pod is currently on. If there was a 'zone' label available then we could have specified all nodes in the same AZ. 
+
+So applying this results in:
+
+```bash
+$ kubectl get pods -o wide --show-labels
+NAME                         READY   STATUS    RESTARTS   AGE   IP            NODE           NOMINATED NODE   READINESS GATES   LABELS
+dep-httpd-5b85b48f69-czd7p   1/1     Running   0          16s   192.168.1.7   kube-worker1   <none>           <none>            component=httpd,pod-template-hash=5b85b48f69
+dep-httpd-5b85b48f69-t4fp2   1/1     Running   0          16s   192.168.1.8   kube-worker1   <none>           <none>            component=httpd,pod-template-hash=5b85b48f69
+pod-mysql-db                 1/1     Running   0          52m   192.168.1.6   kube-worker1   <none>           <none>            component=mysql_db_server
+```
+
+so both httpd pods ends up on the same node as the mysql pod.
 
 
 
+## podAntiAffinity
+
+podAntiAffinity is the reverse of podaffinity:
