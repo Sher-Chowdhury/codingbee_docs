@@ -224,7 +224,7 @@ spec:
             - labelSelector:
                 matchLabels:
                   component: mysql_db_serve
-              topologyKey: kubernetes.io/hostname        # Here we specify an acceptable node key constraint. 
+              topologyKey: "kubernetes.io/hostname"        # Here we specify an acceptable node key constraint. 
       containers:
         - name: cntr-httpd
           image: httpd:latest
