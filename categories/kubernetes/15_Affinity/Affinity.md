@@ -223,7 +223,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchLabels:
-                  component: mysql_db_serve
+                  component: mysql_db_server
               topologyKey: "kubernetes.io/hostname"        # Here we specify an acceptable node key constraint. 
       containers:
         - name: cntr-httpd
