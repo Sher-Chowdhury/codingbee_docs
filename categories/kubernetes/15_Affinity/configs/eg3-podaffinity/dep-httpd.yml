@@ -1,0 +1,33 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: dep-httpd
+  labels:
+    app: apache_webserver
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: httpd
+  template:
+    metadata:
+      labels:
+        component: httpd
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  component: mysql_db_serve
+              topologyKey: kubernetes.io/hostname        # Here we specify an acceptable node key constraint. 
+      containers:
+        - name: cntr-httpd
+          image: httpd:latest
+          ports:
+            - containerPort: 80
+
+
+
+

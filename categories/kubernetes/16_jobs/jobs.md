@@ -1,5 +1,7 @@
 # jobs
 
+Containers by design are supposed to run a single primary process (along with any subprocesses spawned from the primary proceess). That process is either a continiously running process, as is the case of httpd or mysql docker images, or can be short lived processes, that does a specific task and then exits out. All the workload kube objects we've seen so far, Pods, ReplicaSets, Deployments are all designed for running pods with the primary container running a continious process. 
+
 There are occasions where you have a docker image that's designed to run a short-lived tasks. If you create a single container pod from this image, then that pod will end and kubernetes will think that pod has failed and it will try to keep restarting, which is not what you want.
 
 So if you want to run a shortlived pod on an adhoc basis, then you need to create a (controller) 'job' object. Here's what a job looks like:

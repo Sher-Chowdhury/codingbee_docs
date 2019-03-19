@@ -109,12 +109,64 @@ pod-httpd   1/1     Running   0          7s    192.168.2.4   kube-worker2   <non
 
 If you have created a pod cluster via a controller, e.g. deployment, then you can trigger a rebuild by manually deleting one pod at a time.
 
-We just saw a soft rule (preference) in action. If you want a hard rule then use `pod.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution` instead. This does the same job as nodeSelector but with more advanced customisation. 
+
+### preferredDuringSchedulingIgnoredDuringExecution weights
+
+The 'weight' setting is something specific to soft/preference rules. For each preference rule a node matches, it receives a score equal to the weight. So if a certain node matches multiple preferences then it scores higher, and is more likely to have the pods deployed to them.
+
+## Hard rules (eg2-hard-node-affinity)
+
+We just saw a soft rule (preference) in action. But if you increased the replica to 2, then it gets deployed on matching and non matching worker nodes. That's because we only have 2 worker nodes and pods needs to be on both for HA. I.e. need for HA overrides the soft rule. If you want more powerful rules, the you need to make use of hard rules. 
+
+For hard rules you use `pod.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution` . This does the same job as nodeSelector but with more advanced customisation. The syntax also looks similar to soft rules:
+
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: dep-httpd
+  labels:
+    app: apache_webserver
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: httpd
+  template:
+    metadata:
+      labels:
+        component: httpd
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:   # notice, no weight setting. 
+            nodeSelectorTerms:                                  # notice 'preference' replaced by 'nodeSelectorTerms'
+              -  matchExpressions: 
+                   - key: ec2InstanceType
+                     operator: In
+                     values:
+                       - M1
+                       - M2
+      containers:
+        - name: cntr-httpd
+          image: httpd:latest
+          ports:
+            - containerPort: 80
+```
+
+This results in:
+
+```bash
+$ kubectl get pods -o wide
+NAME                         READY   STATUS    RESTARTS   AGE     IP            NODE           NOMINATED NODE   READINESS GATES
+dep-httpd-69779b8c84-9jrw8   1/1     Running   0          5m52s   192.168.2.9   kube-worker2   <none>           <none>
+dep-httpd-69779b8c84-cjmnt   1/1     Running   0          5m52s   192.168.2.8   kube-worker2   <none>           <none>
+```
+
+I.e. both nodes are on the same worker node, even though there is another worker node available.
 
 
-## preferredDuringSchedulingIgnoredDuringExecution weights
-
-The 'weight' setting is something specific to soft/preference rules. For each preference rule a node matches, it receives a score equal to the weight. So if a certain node matches multiple preferences then it scores higher, and is more likely to have the pods deployed to them. 
 
 
 ## Built-in node labels
@@ -129,7 +181,17 @@ kube-worker1   Ready    <none>   16h   v1.13.4   beta.kubernetes.io/arch=amd64,b
 kube-worker2   Ready    <none>   16h   v1.13.4   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,ec2InstanceType=M2,kubernetes.io/hostname=kube-worker2
 ```
 
-You'll see that the nodes are already tagged with a few labels by default. You can use these built-in labels as part of your Affinity/Anti-Affinity definitions if they meet your needs.  
+You'll see that the nodes are already tagged with a few labels by default. You can use these built-in labels as part of your Affinity/Anti-Affinity definitions if they meet your needs. These builtin node labels are often used in conjunction with podAffinity
+
+
+## Inter-pod affinity and anti-affinity
+
+Sometimes you might want 2 or more different pods running on the same worker node. For example you might want your wordpress pod and the wordpress's mysql pod running on the same worker, in order to reduce network latency when your wordpress pod talks to the mysql pod. This can be done using the `pod.spec.affinity.podAffinity` setting. This setting can be used to co-locate pods in the same (aws availabity) zone as well as node.
+
+So to take a look at this, lets start by creating a pod that we want to have other pods to have affinity with:
+
+
+
 
 
 
