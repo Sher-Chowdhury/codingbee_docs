@@ -251,4 +251,21 @@ so both httpd pods ends up on the same node as the mysql pod.
 
 ## podAntiAffinity
 
-podAntiAffinity is the reverse of podaffinity:
+podAntiAffinity is the reverse of podaffinity, i.e. deploy your pods away from another set of pods. 
+
+```yaml
+
+```
+
+
+Applying this results in:
+
+
+```bash
+$ kubectl get pods -o wide --show-labels
+NAME                        READY   STATUS              RESTARTS   AGE    IP            NODE           NOMINATED NODE   READINESS GATES   LABELS
+dep-httpd-586fd6f97-9kz5g   0/1     ContainerCreating   0          2s     <none>        kube-worker2   <none>           <none>            component=httpd,pod-template-hash=586fd6f97
+dep-httpd-586fd6f97-rbvvc   0/1     ContainerCreating   0          2s     <none>        kube-worker2   <none>           <none>            component=httpd,pod-template-hash=586fd6f97
+pod-mysql-db                1/1     Running             0          111m   192.168.1.6   kube-worker1   <none>           <none>            component=mysql_db_server
+
+```

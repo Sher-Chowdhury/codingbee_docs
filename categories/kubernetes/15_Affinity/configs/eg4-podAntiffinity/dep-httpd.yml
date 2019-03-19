@@ -21,7 +21,7 @@ spec:
             - labelSelector:
                 matchLabels:
                   component: mysql_db_server
-              topologyKey: kubernetes.io/hostname        # This is used to target a single or group of nodes
+              topologyKey: kubernetes.io/hostname
       containers:
         - name: cntr-httpd
           image: httpd:latest
