@@ -18,13 +18,13 @@ spec:
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:   # notice, no weight setting. 
-            - nodeSelectorTerms:                                  # notice 'preference' replaced by 'nodeSelectorTerms'
-                matchExpressions: 
-                  - key: ec2InstanceType
-                    operator: In
-                    values:
-                      - M1
-                      - M2
+            nodeSelectorTerms:                                  # notice 'preference' replaced by 'nodeSelectorTerms'
+              -  matchExpressions: 
+                   - key: ec2InstanceType
+                     operator: In
+                     values:
+                       - M1
+                       - M2
       containers:
         - name: cntr-httpd
           image: httpd:latest
