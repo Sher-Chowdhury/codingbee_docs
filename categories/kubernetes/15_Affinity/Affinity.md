@@ -190,6 +190,47 @@ Sometimes you might want 2 or more different pods running on the same worker nod
 
 So to take a look at this, lets start by creating a pod that we want to have other pods to have affinity with:
 
+```bash
+$ kubectl apply -f configs/eg3-podaffinity/pod-mysql.yml
+pod/pod-mysql-db created
+$ kubectl get pods -o wide --show-labels
+NAME           READY   STATUS    RESTARTS   AGE   IP            NODE           NOMINATED NODE   READINESS GATES   LABELS
+pod-mysql-db   1/1     Running   0          18s   192.168.1.6   kube-worker1   <none>           <none>            component=mysql_db_server
+```
+
+Now we want our pods to have affinity with this pod, and we create the connection using the component=mysql_db_server pod label:
+
+```yaml
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: dep-httpd
+  labels:
+    app: apache_webserver
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: httpd
+  template:
+    metadata:
+      labels:
+        component: httpd
+    spec:
+      affinity:
+        podAffinity:                                      # here we set the podaffinity setting
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  component: mysql_db_serve
+              topologyKey: kubernetes.io/hostname        # Here we specify an acceptable node key constraint. 
+      containers:
+        - name: cntr-httpd
+          image: httpd:latest
+          ports:
+            - containerPort: 80
+```
 
 
 
