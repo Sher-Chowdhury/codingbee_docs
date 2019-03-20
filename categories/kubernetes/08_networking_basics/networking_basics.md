@@ -4,6 +4,7 @@ In Kubernetes, 'services' is actually all about networking. In Docker world, whe
 
 - A pod's internal networking
 - IP based pod-to-pod networking
+- IP based kube-node-to-pod networking
 - dns-service (kube-dns)
 
 
@@ -142,7 +143,7 @@ and since we have an entry in the hosts file for this hostname, it means the fol
 
 In both 'locahost' and 'hostname' curl requests, a static internal dns-lookup occured thanks to the /etc/hosts entry.
 
-So far we did a **cntr-centos**-->**cntr-httpd**. But we didn't do it in the other direction. That's because cntr-centos is in theory reachable, but we haven't setup anytihng on cntr-centos to listen on any ports.
+So far we did a **cntr-centos**-->**cntr-httpd**. But we didn't do it in the other direction. That's because cntr-centos is in theory reachable, but we haven't setup anytihng (e.g. web servre) on cntr-centos to listen on any ports.
 
 
 
@@ -230,7 +231,7 @@ Commercial support is available at
 However we can't rely on IP addresses because they are prone to changing, e.g. when a pod is rebuilt. So hard coding ip addresses in various places is not an option. The conventional to address this problem is giving each pod a human-readable dns name, which is kept up to date dynamically, that's where kube-dns comes to the rescue
 
 
-# DNS Service
+## DNS Service
 
 Minikube comes with a builtin internal dns service, kube-dns ([soon to be coredn](https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/)).
 
@@ -252,3 +253,11 @@ options ndots:5
 
 So all we need to do is create dns entries in our internal dns server (kube-dns). That's done by creating service objects. There are different types of service objects, such as nodePort, and ClusterIP service. We'll cover them later. 
 
+
+## The 'kubectl expose' command
+
+In this course we'll focus on creating service objects declaratively using yaml files. But you can create them implicitly from the command line usng the 'expose' subcommand:
+
+```bash
+kubectl expose pod podname --type=NodePort --name servicename
+```

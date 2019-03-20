@@ -38,7 +38,7 @@ metadata:
 spec:
   affinity:                # Added this section
     nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution: # this means decision is made at scheduling stage only, so won't self correct if rule is met in the futuer
+      preferredDuringSchedulingIgnoredDuringExecution: # this means decision is made at scheduling stage only, so won't self correct if rule is met in the future
         - weight: 10
           preference:
             matchExpressions: 

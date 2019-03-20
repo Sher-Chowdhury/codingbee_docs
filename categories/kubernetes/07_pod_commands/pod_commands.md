@@ -3,7 +3,7 @@
 The primary function of a docker container is to run a process. This process comes in the form of a command or an entrypoint script, and is baked into the docker image using the Dockerfile's [CMD](https://docs.docker.com/engine/reference/builder/#cmd) or the [ENTRYPOINT](https://docs.docker.com/engine/reference/builder/#entrypoint).
 
 
-These commands/script can be shortlived, in which case the container stops once the command has finished running. However they are they are ongoing, becuase they provide an ongoing, for example the httpd container provides an ongoing web service.
+These commands/script can be shortlived, if the container is supposed to perform a specific task, in which case the container stops once the commands/script finishes running. Containers also run continuously, becuase they provide an ongoing service, for example the httpd container provides an ongoing web service.
 
 
 So if you build a pod using a docker image that runs a short lived process, for example:
@@ -49,7 +49,7 @@ pod-centos   0/1     Completed   2          26s
 $ 
 ```
 
-Here the pods ran for less than a second before shutting down. However pods are designed for running ongoing processes, so when the container stopped, kubernetes thought something went wrong and tried to restart it:
+Here the pods ran for less than a second before shutting down. However pods are supposed to be used for running continuous workloads, so when the container stopped, kubernetes thought something went wrong and tried to restart it:
 
 ```bash
 $ kubectl describe pod pod-centos
@@ -110,9 +110,9 @@ Events:
 
 ```
 
-Kubernetes will just keep restarting this in an endless cycle. and the pod will keep starting+stopping in an endless cycle too.
+Kubernetes will just keep restarting this in an endless cycle. and the pod will keep starting+stopping in an endless cycle too. To run containers that have shortlived workloads, you should run them as Kubernetes jobs or cronjobs objeect. We'll cover them later. 
 
-If you want the container in this pod to run on an ongoing basis, then you can override the centos image's default CMD setting with ongoing command/script using the command+args settings:
+If you want the container in this pod to run on an ongoing basis, then you can override the centos image's default CMD setting with an ongoing command/script using the command+args settings:
 
 ```bash
 ---
@@ -135,7 +135,7 @@ spec:
           done
 ```
 
-Here we're feeding an infinite while loop to keep the pod constantly running:
+Here we're feeding an infinite while loop to keep the pod running continuously:
 
 ```bash
 $ kubectl get pod
@@ -167,7 +167,7 @@ You can also monitor the pods standard output in realtime by using the logs -f f
 $ kubectl logs -f pod-centos
 ```
 
-Or connect your bash terminal directly connect to the pod's standard output using the 'attach' command:
+Or connect your bash terminal directly to the pod's standard output using the 'attach' command:
 
 ```bash
 $ kubectl attach pod-centos
