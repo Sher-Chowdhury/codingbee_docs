@@ -84,9 +84,7 @@ $ kubectl exec -it pod-httpd -c cntr-httpd -- /bin/bash
 root@pod-httpd:/usr/local/apache2#
 ```
 
-This command is quite similar to the docker command. In your case, you might need to replace '/bin/bash' with something else,e.g. '/bin/sh', depending on the image your container was created from. The '--' is used to tell kubectl that everything after '--' should be interpreted as the command to run inside the pod.
-
-
+This command is quite similar to the docker command. In your case, you might need to replace '/bin/bash' with something else,e.g. '/bin/sh', bash, sh, depending on the image your container was created from. The '--' is used to tell kubectl that everything after '--' should be interpreted as the command to run inside the pod, which in our example is just to create a bash session.
 
 Once you're inside the container, you then need to install the nc and curl packages. The command you need to run various depending on the image you use, but in our case, we run:
 
@@ -108,6 +106,17 @@ root@pod-httpd:/usr/local/apache2# curl http://localhost
 ```
 
 Success!
+
+
+You can also use 'kubectl exec' to directly run commands without needing to first creating a bash session inside the container:
+
+```bash
+$ kubectl exec -it pod-httpd -c cntr-httpd -- nc -v localhost 80
+localhost [127.0.0.1] 80 (?) open
+```
+
+In this example if we did omit the '--', then kubectl would have because because kubectl would have thought that that '-v' is a kubectl flag rather than a netcat flag.
+
 
 ### Validate from inside the kube master/worker node
 
