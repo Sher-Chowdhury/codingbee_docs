@@ -254,9 +254,36 @@ so both httpd pods ends up on the same node as the mysql pod.
 podAntiAffinity is the reverse of podaffinity, i.e. deploy your pods away from another set of pods. 
 
 ```yaml
-
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: dep-httpd
+  labels:
+    app: apache_webserver
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: httpd
+  template:
+    metadata:
+      labels:
+        component: httpd
+    spec:
+      affinity:
+        podAntiAffinity:                                       # Just need to change this line to do the reverse
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  component: mysql_db_server
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: cntr-httpd
+          image: httpd:latest
+          ports:
+            - containerPort: 80
 ```
-
 
 Applying this results in:
 

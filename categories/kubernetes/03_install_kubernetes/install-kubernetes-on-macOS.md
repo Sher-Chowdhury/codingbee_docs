@@ -101,7 +101,7 @@ Here we can see that kubectl is currently configured to interact with the 'minik
 
 ## Using Docker with Minikube
 
-The minikube vm comes with Docker preinstalled. So when you create kubernetes objects, e.g. pods, then you can use the docker cli to view the underlying containers that have been created. You might want to do this for troubleshooting/debugging purposes.
+The kubecluster running inside the minikube vm actually used Docker to run all the containers. So when you create kubernetes objects, e.g. pods, then you can use the docker cli to view the underlying containers that have been created. You might want to do this for troubleshooting/debugging purposes.
 
 In our macbooks, the docker cli is preconfigured to interact with the docker daemon that's running directly on our macbook. At the moment our macbook isn't directly running any contaienrs:
 
@@ -141,6 +141,33 @@ da459f1cfb48        quay.io/kubernetes-ingress-controller/nginx-ingress-controll
 ```
 
 Notice that we already have some containers running, that's because these containers are used by kubernetes itself for it's inner workings.
+
+If you don't have docker installed on your macbook, then you can still use the docker cli that's preinstalled inside the minikube vm. You do that by first ssh'ing into the minikube VM:
+
+```bash
+$ minikube ssh
+                         _             _
+            _         _ ( )           ( )
+  ___ ___  (_)  ___  (_)| |/')  _   _ | |_      __
+/' _ ` _ `\| |/' _ `\| || , <  ( ) ( )| '_`\  /'__`\
+| ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )(  ___/
+(_) (_) (_)(_)(_) (_)(_)(_) (_)`\___/'(_,__/'`\____)
+
+$
+```
+
+Then find the container name and login:
+
+```bash
+
+$ docker container ls
+CONTAINER ID        IMAGE                                                            COMMAND                  CREATED             STATUS              PORTS                                                                NAMES
+1a62cc23df18        gcr.io/google_containers/defaultbackend                          "/server"                2 minutes ago       Up 2 minutes 
+.
+.
+..etc
+```
+
 
 ## The Kubernetes dashboard
 

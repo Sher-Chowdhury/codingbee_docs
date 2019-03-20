@@ -4,16 +4,14 @@
 ## Hello world - Part 1
 In this walkthrough we will get an Apache web server (container) running inside our kube cluster. In Kubernetes we build objects. There are different types (aka kind) of objects, Pods, Services, Deployments,....etc. In our hello-world example we'll start by building a Pod object. 
 
-**Pod:** A pod is the fundamental building block in Kubernetes. A pod main purpose is to house one or more containers. At the moment, we don't have any pods in our kubecluster:
+**Pod:** A pod main purpose is to house one or more containers. In kubernetes you can only run container inside pods. That makes pods the fundamental building block in Kubernetes. At the moment, we don't have any pods in our kubecluster:
 
 ```bash
 $ kubectl get pods
 No resources found.
 ```
 
-
-
-In kubernetes, you create an object by first writing a yaml config file, and then feeding that config file into kubectl. So here's our pod object file's yaml content:
+You create an object by first writing a yaml config file, and then feeding that config file into the kubectl command. So here's our pod's yaml content:
 
 ```yaml
 ---
@@ -40,7 +38,7 @@ We'll cover how to construct these yaml files from scratch in the anatomy tutori
 5. note that the container will be listening on port 80
 6. Assign an arbitrary key/value label to the pod of key=component and value=apache_webserver. This label will come in useful later on.
 
-We wrote this yaml content into a file called, pod-httpd-obj-def.yml. It doesn't matter what you call the file, as long as it's meaningful to you. and ends with the yml/yaml suffix. Now let's create the object, using the apply command:
+We wrote this yaml content into a file called, pod-httpd-descriptor.yml. It doesn't matter what you call the file, as long as it's meaningful to you. and ends with the .yml/.yaml suffix. Now let's create the object, using the apply command:
 
 
 ```bash
@@ -52,7 +50,7 @@ NAME        READY     STATUS    RESTARTS   AGE       IP           NODE
 pod-httpd   1/1       Running   0          8s        172.17.0.5   minikube
 ```
 
-Here we can see tha ta new pod has been created. The pod's name is 'pod-httpd' which is exactly the name we asked for in our yaml file's metadata.name setting. Tto get more detailed info about our pod, we can use the 'describe' subcommand:
+Here we can see tha the new pod has been created. The pod's name is 'pod-httpd' which is exactly the name we asked for in our yaml file's metadata.name setting. Also pod has it's very own private IP auto-assigned to it. To get more detailed info about our pod, we can use the 'describe' subcommand:
 
 ```bash
 kubectl describe pods pod-httpd
@@ -65,54 +63,30 @@ PriorityClassName:  <none>
 ...etc
 ```
 
-So far we've created a single pod with a single container inside that pod. This container is supposed to have the apache webserver running inside it. But how to do we verify that container's web service is definitely working? To properly verify this, we need to do a 2-step verification process:
+So far we've created a single-container pod. This container is supposed to have the apache webserver running inside it. But how to do we verify that container's web service is definitely working? To properly verify this, we need to do a 2-step verification process:
 
-1. Verify that our container (and consequently our pod) is listening on port 80. E.g. by running something like:
+1. Verify that our container (and consequently our pod) is listening on the correct port.
 ```bash
-nc -v http://localhost
+nc -v pod-ip 80
 ```
-2. Try and access our containers homepage, by running something like:
+2. Try and access our containers homepage, e.g. using curl:
 ```bash
-curl http://localhost
+curl http://pod-ip
 ```
 
-However if you open up a bash terminal on your macbook and tried these steps you'll find that neither of these commands will work at this stage. That's because you need to setup some networking inside your kubecluster to make your pod accessible by other pods in the kubecluster and/or make your pod externally accessible (e.g. from your macbook). We'll cover how to setup some quick-and-dirty networking in the next lesson.
+If you open up a bash terminal on your macbook and tried these nc and curl commands you'll find that they fail. That's because Kubernetes only comes with some basic networking features out-of-the-box. Those networking features only makes pods accessible by either the kube cluster's worker/master nodes, and from other pods in the kubecluster. This means you have to setup extra configurations to make pods externally accessible.
 
 
 In the meantime there are some more limited tests that you can still perform, that is that you still perform the nc+curl tests but from inside the container itself. To do that, you need to access your container's bash terminal. You can do that by using the exec command:
 
 ```bash
-$ kubectl exec -it pod-httpd -c cntr-httpd /bin/bash
+$ kubectl exec -it pod-httpd -c cntr-httpd -- /bin/bash
 root@pod-httpd:/usr/local/apache2#
 ```
 
-This command is quite similar to the docker command. In your case, you might need to replace '/bin/bash' with something else,e.g. '/bin/sh', depending on the image you used to build your container.
+This command is quite similar to the docker command. In your case, you might need to replace '/bin/bash' with something else,e.g. '/bin/sh', depending on the image your container was created from. The '--' is used to tell kubectl that everything after '--' should be interpreted as the command to run inside the pod.
 
-In case you want to access the bash terminal using the docker approach, then you can do that too, by ssh'ing into the minikube vm:
 
-```bash
-$ minikube ssh
-                         _             _
-            _         _ ( )           ( )
-  ___ ___  (_)  ___  (_)| |/')  _   _ | |_      __
-/' _ ` _ `\| |/' _ `\| || , <  ( ) ( )| '_`\  /'__`\
-| ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )(  ___/
-(_) (_) (_)(_)(_) (_)(_)(_) (_)`\___/'(_,__/'`\____)
-
-$
-```
-
-Then find the container name and login:
-
-```bash
-
-$ docker exec -it cntr-httpd /bin/bash
-Error: No such container: cntr-httpd
-$ docker container ls | grep cntr-httpd
-ea800e6dec23        httpd                                                            "httpd-foreground"       5 hours ago         Up 5 hours                                                                               k8s_cntr-httpd_pod-httpd_default_742bd105-3c4c-11e9-946d-0800271ef513_0
-$ docker exec -it ea800e6dec23 /bin/bash
-root@pod-httpd:/usr/local/apache2#
-```
 
 Once you're inside the container, you then need to install the nc and curl packages. The command you need to run various depending on the image you use, but in our case, we run:
 
@@ -122,7 +96,7 @@ apt-get install netcat
 apt-get install curl
 ```
 
-Now we run the verifation tests:
+Now we run the verification tests:
 
 ```bash
 # nc -v localhost 80
@@ -135,15 +109,33 @@ root@pod-httpd:/usr/local/apache2# curl http://localhost
 
 Success!
 
+### Validate from inside the kube master/worker node
 
 
+You can run the telnet+curl command from inside the minikube vm:
 
+```bash
+$ kubectl get pods -o wide
+NAME        READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+pod-httpd   1/1     Running   0          28m   172.17.0.7   minikube   <none>           <none>
 
+$ minikube ssh
+                         _             _            
+            _         _ ( )           ( )           
+  ___ ___  (_)  ___  (_)| |/')  _   _ | |_      __  
+/' _ ` _ `\| |/' _ `\| || , <  ( ) ( )| '_`\  /'__`\
+| ( ) ( ) || || ( ) || || |\`\ | (_) || |_) )(  ___/
+(_) (_) (_)(_)(_) (_)(_)(_) (_)`\___/'(_,__/'`\____)
+
+$ curl http://172.17.0.7
+<html><body><h1>It works!</h1></body></html>
+$ 
+```
 
 
 ## Hello World - Part 2
 
-We're now going to improve on our existing hello-world example by making our pod accessible directly from our macbook's web browser. That's done by creating a 'service' object.
+We're now going to improve this hello-world example by making our pod accessible directly from our macbook's web browser. That's done by creating a 'service' object.
 
 **Service:** A service object is used to setup networking in our kube cluster. E.g. if a running pod exposes a web based gui, then a service object needs to be set up to make that pod's gui externally accessible. 
 
@@ -174,7 +166,7 @@ spec:
                                  # that's how this object and the pod object links together.
 ```
 
-There are different types of service objects, in our case we are creating a NodePort type service. NodePort services are quite crude and isn't recommended for production, but we're using it here because it's the easiest service type to understand for a beginner. Before we create our service object, let's first let's first see what services we currently have:
+There are different types of service objects, in our case we are creating a NodePort type service. NodePort services are quite crude and isn't recommended for production, but we're using it here because it's the easiest service type to understand for a beginner. Before we create our service object, let's first see what services we currently have:
 
 ```bash
 $ kubectl get services
@@ -216,13 +208,27 @@ $ curl http://192.168.99.100:31000
 <html><body><h1>It works!</h1></body></html>
 ```
 
+Another more shorthand way to run the curl command:
 
+```bash
+$ minikube service svc-nodeport-httpd --url
+http://192.168.99.107:31000
 
+$ curl $(minikube service svc-nodeport-httpd --url)
+<html><body><h1>It works!</h1></body></html>
+```
+
+Or to open it up in a web browser, just do:
+
+```bash
+$ minikube service svc-nodeport-httpd 
+🎉  Opening kubernetes service default/svc-nodeport-httpd in default browser...
+```
 
 
 ## Deleting objects
 
-You can delete objects individually, or collectively. Here's how to do it collectively:
+You can delete objects individually, or collectively:
 
 ```bash
 $ kubectl delete -f ./configs
@@ -230,73 +236,7 @@ pod "pod-httpd" deleted
 service "svc-nodeport-apache-webserver" deleted
 ```
 
-## Defining multiple objects in a single config file
 
-In this walkthrough we ended up with 2 config files. However you can store 2 or more objects in a single config file. All you need to do is to copy all the definitions into a single file, and seperate them out using by inserting the yaml-new-document-syntax '---' between them. It's really a preference on whether or not to use this approach.
-
-
-## Updating objects
-
-Kubernetes is smart enough to identify which objects have been created by a particular config file. It does so by using the configs about the 'kind' and metadata.name info. Config's filename itself doesn't matter, as long as it ends with the .yml/.yaml extension. You can make changes to the yaml files (as long as it isn't changing the kind or metadata.name fields) and just apply them again for the changes to take affect.
-
-That's a good thing because it means you can modify an existing object by editing it's corresponding config file and reapply it. However, since the 'kind' and 'metadata.name' are used for mapping yaml configs to their respective objects it means that changing these will make kubernetes think that they are new objects. In my example I'm going to change the pod's image name from httpd to nginx:
-
-```yaml
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: pod-httpd
-  labels:
-    component: apache_webserver
-spec: 
-  containers:
-    - name: cntr-httpd
-      image: nginx       # this was httpd back when this object was created. 
-      ports:
-        - containerPort: 80
-
-```
-
-Now we reapply the changes:
-
-```bash
-$ kubectl apply -f configs/pod-object-definition.yml 
-pod "pod-httpd" configured
-```
-
-This time we get a configured message. This means that kubernetes hasn't created anything new, just updated one or more existing objects. Now we can retest:
-
-```bash
-$ curl http://192.168.99.100:31000
-<!DOCTYPE html>
-<html>
-<head>
-<title>Welcome to nginx!</title>
-<style>
-    body {
-        width: 35em;
-        margin: 0 auto;
-        font-family: Tahoma, Verdana, Arial, sans-serif;
-    }
-</style>
-</head>
-<body>
-<h1>Welcome to nginx!</h1>
-<p>If you see this page, the nginx web server is successfully installed and
-working. Further configuration is required.</p>
-
-<p>For online documentation and support please refer to
-<a href="http://nginx.org/">nginx.org</a>.<br/>
-Commercial support is available at
-<a href="http://nginx.com/">nginx.com</a>.</p>
-
-<p><em>Thank you for using nginx.</em></p>
-</body>
-</html>
-```
-
-However, like 'kind' and metadata.name, there are other fields that you can't change, e.g. for a pod object, you can't change the containerPort. If you do then you'll get a forbidden error message.
 
 
 ## Troubleshooting pods
@@ -308,11 +248,14 @@ If a pod is failing to enter running mode, then there's a few ways to investigat
 
 kubectl logs podname
 
+kubectl logs podname --previous   # view previous crashed pod's log. 
+
 kubectl describe pods podname   # this has a history session, which could give more info
 
 kubectl get pods podname -o yaml   # this has a state message which gives more info too.
 
 kubectl get events    # this give more general historical info about tasks performed by kubernetes
+
 
 
 ```
