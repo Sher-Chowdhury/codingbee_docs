@@ -81,7 +81,7 @@ spec:
       labels:
         app: nginx_webserver
     spec: 
-      tolerations:                    # add toleration here. 
+      tolerations:                    # add toleration here.
         - key: TrialNode                     # All this info is used to 
           operator: Equal                    # match particular taint 
           value: SpecialNodeForDevTeam       # setting. 
@@ -93,8 +93,19 @@ spec:
             - containerPort: 80
 ```
 
-This basically overrides a node's taint if there is a match. 
+Notice we had to add some matching condtions. That's because you can apply multiple taints to a node. This toleration basically cancel's out one-of the node's taint if there is a match. 
 
+
+```bash
+kubectl get pods -o wide
+NAME                         READY   STATUS    RESTARTS   AGE   IP             NODE           NOMINATED NODE   READINESS GATES
+dep-httpd-78f54cc967-56f68   1/1     Running   0          75s   192.168.2.17   kube-worker2   <none>           <none>
+dep-httpd-78f54cc967-9kxhm   1/1     Running   0          75s   192.168.2.18   kube-worker2   <none>           <none>
+dep-httpd-78f54cc967-m22th   1/1     Running   0          75s   192.168.2.16   kube-worker2   <none>           <none>
+dep-nginx-7579cddb84-cfn7x   1/1     Running   0          46s   192.168.1.10   kube-worker1   <none>           <none>
+dep-nginx-7579cddb84-nv4xb   1/1     Running   0          46s   192.168.2.19   kube-worker2   <none>           <none>
+```
+If a node has multiple taints, then your pod spec needs to have multiple tolerations in order to cancel them all out. 
 
 
 

@@ -141,7 +141,7 @@ $ kubectl config set-context $(kubectl config current-context) --namespace=kube-
 Context "minikube" modified.
 ```
 
-As you can see, the command we use to configure which kubecluster our kubectl command should connect to also lets you set the namespace (i.e. namespace to use when not explicitly specified on the command line).
+As you can see, the command we use to configure which kubecluster our kubectl command should connect (i.e. the context) to also lets you set the namespace (i.e. namespace to use when not explicitly specified on the command line).
 
 
 
