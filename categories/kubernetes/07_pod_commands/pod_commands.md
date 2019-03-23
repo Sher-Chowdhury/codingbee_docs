@@ -53,51 +53,7 @@ Here the pods ran for less than a second before shutting down. However pods are 
 
 ```bash
 $ kubectl describe pod pod-centos
-Name:               pod-centos
-Namespace:          default
-Priority:           0
-PriorityClassName:  <none>
-Node:               minikube/10.0.2.15
-Start Time:         Mon, 11 Mar 2019 11:47:51 +0000
-Labels:             <none>
-Annotations:        kubectl.kubernetes.io/last-applied-configuration:
-                      {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{},"name":"pod-centos","namespace":"default"},"spec":{"containers":[{"image":"ce...
-Status:             Running
-IP:                 172.17.0.7
-Containers:
-  cntr-centos:
-    Container ID:   docker://5e8e7e1c7956d4b2baa0f03a942037f0609b0ff29a8c5c6e5867fd4ac4e7ceab
-    Image:          centos
-    Image ID:       docker-pullable://centos@sha256:184e5f35598e333bfa7de10d8fb1cebb5ee4df5bc0f970bf2b1e7c7345136426
-    Port:           <none>
-    Host Port:      <none>
-    State:          Waiting
-      Reason:       CrashLoopBackOff
-    Last State:     Terminated
-      Reason:       Completed
-      Exit Code:    0
-      Started:      Mon, 11 Mar 2019 11:59:04 +0000
-      Finished:     Mon, 11 Mar 2019 11:59:04 +0000
-    Ready:          False
-    Restart Count:  7
-    Environment:    <none>
-    Mounts:
-      /var/run/secrets/kubernetes.io/serviceaccount from default-token-pnlgw (ro)
-Conditions:
-  Type              Status
-  Initialized       True 
-  Ready             False 
-  ContainersReady   False 
-  PodScheduled      True 
-Volumes:
-  default-token-pnlgw:
-    Type:        Secret (a volume populated by a Secret)
-    SecretName:  default-token-pnlgw
-    Optional:    false
-QoS Class:       BestEffort
-Node-Selectors:  <none>
-Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
-                 node.kubernetes.io/unreachable:NoExecute for 300s
+...
 Events:
   Type     Reason     Age                 From               Message
   ----     ------     ----                ----               -------

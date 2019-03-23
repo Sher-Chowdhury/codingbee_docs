@@ -1,6 +1,6 @@
 # Deployments
 
-[deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) are a special type of object referred to as 'controllers'. Controllers are objects that monitor+controls the state and behaviour of other objects.
+[deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) are a special type of object referred to as 'controllers'. Controllers are objects that monitors+controls other objects.
 
 In the case of deployments, they control the state of other pod objects. Deployments are a bit like the equivalent of AWS EC2 Autoscaling Scaling Groups, Where instead of autoamatically scaling ec2 instances, in kubernetes you autoscale identical pods across one or more worker nodes.
 
