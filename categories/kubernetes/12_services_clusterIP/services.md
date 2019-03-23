@@ -36,7 +36,7 @@ kubernetes                      ClusterIP   10.96.0.1        <none>        443/T
 svc-clusterip-httpd             ClusterIP   10.99.76.207     <none>        80/TCP           5m8s
 ```
 
-You can think of ClusterIP objects as an internal loadbalancer with a working static dns name. It's makes ClusterIP objects perfectly suited to deliver traffic to a group of pods spawnd by a Deployment object. Here's our example:
+You can think of ClusterIP objects as an internal loadbalancer with a working static dns name. It's makes ClusterIP objects perfectly suited to deliver traffic to a group of pods spawned by a Deployment object. Here's our example:
 
 
 ```yaml
@@ -83,20 +83,34 @@ Now we have pods with labels that our ClusterIP object is allowed to send traffi
 
 ```bash
 $ kubectl describe svc svc-clusterip-httpd
-Name:              svc-clusterip-httpd
-Namespace:         default
-Labels:            <none>
-Annotations:       kubectl.kubernetes.io/last-applied-configuration:
-                     {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"svc-clusterip-httpd","namespace":"default"},"spec":{"ports":[{"po...
-Selector:          component=httpd_webserver
-Type:              ClusterIP
-IP:                10.99.76.207
-Port:              <unset>  80/TCP
-TargetPort:        80/TCP
+...
 Endpoints:         172.17.0.10:80,172.17.0.8:80,172.17.0.9:80
-Session Affinity:  None
-Events:            <none>
+...
 ```
+
+Another way to confirm this is:
+
+```bash
+$ kubectl get endpoints svc-clusterip-httpd 
+NAME                  ENDPOINTS                                   AGE
+svc-clusterip-httpd   172.17.0.2:80,172.17.0.8:80,172.17.0.9:80   108s
+$ kubectl describe endpoints svc-clusterip-httpd
+Name:         svc-clusterip-httpd
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+Subsets:
+  Addresses:          172.17.0.2,172.17.0.8,172.17.0.9
+  NotReadyAddresses:  <none>
+  Ports:
+    Name     Port  Protocol
+    ----     ----  --------
+    <unset>  80    TCP
+
+Events:  <none>
+```
+
+
 
 Now we can test out the ClusterIP dns and loadbalancing from our centos test pod. 
 
@@ -114,7 +128,31 @@ The pod, dep-httpd-597fc5f696-qw4pf is displaying this page.
 
 This time we managed to curl to our pods using a dns name rather than ip address. Also we didn't need to use an non-standard port either (although that option is available for use, if we need it). 
 
-As you can see, by running curl a few times, we can also see the ClusterIP's loadbalancing feature also working. By the way we're also running this curl command inside a while loop, as part of the centos pods primary command. You can view this output in the logs:
+So now we no longer need to worry about a pods IP address changing. Also we don't need to worry about how one pod can work out the ip address of another pod that's it trying to reach. We can now just use the static dns name instead for pod-to-pod communication. However how will our pod know what IP address to use, if it's a non-standard ip address? Luckily info for ALL service objects are available as environment variables from inside every container!:
+
+```bash
+$ kubectl get svc
+NAME                  TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+kubernetes            ClusterIP   10.96.0.1       <none>        443/TCP   7d15h
+svc-clusterip-httpd   ClusterIP   10.99.158.152   <none>        80/TCP    14m
+
+
+$ kubectl exec -it pod-centos -c cntr-centos -- /bin/bash
+[root@pod-centos /]# env | grep -i svc_clusterip_httpd
+SVC_CLUSTERIP_HTTPD_SERVICE_PORT=80
+SVC_CLUSTERIP_HTTPD_PORT_80_TCP_PORT=80
+SVC_CLUSTERIP_HTTPD_PORT_80_TCP_ADDR=10.99.158.152
+SVC_CLUSTERIP_HTTPD_PORT_80_TCP_PROTO=tcp
+SVC_CLUSTERIP_HTTPD_PORT=tcp://10.99.158.152:80
+SVC_CLUSTERIP_HTTPD_SERVICE_HOST=10.99.158.152
+SVC_CLUSTERIP_HTTPD_PORT_80_TCP=tcp://10.99.158.152:80
+```
+
+Note: any hyphens in service names gots converted to underscores, and all letters are switched to upper case.
+
+
+
+Also as you can see from the above curl commands, by running curl a few times, we can also see the ClusterIP's loadbalancing feature in action. By the way we're also running this curl command inside a while loop, as part of the centos pods primary command. You can view this output in the logs:
 
 ```bash
 $ kubectl logs pod-centos

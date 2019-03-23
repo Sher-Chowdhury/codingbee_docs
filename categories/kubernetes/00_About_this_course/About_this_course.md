@@ -42,11 +42,14 @@ This is an intermediate level course. You need to know the following:
 - docker, this won't cover a lot about docker
 - 
 
-## Course guide
+## Study guide
+
+This course comes with it's very own study guide, so you can follow along all the examples. 
 
 This course will be closely following the following git repo: xxxxxx
 
-So if you want to follow along, then clone this repo. 
+most of the demos are done on a minikube based kubecluster. But some demo requires a multi-node cluster so we used a
+
 
 # Course Structure 
 
@@ -69,6 +72,31 @@ kubectl explain xxxxx
 
 In this qude, we'll refer to what to put in here, using a dot like notation e.g. 'pod.spec'. 
 
+
+Also some commands have a long output, so we only show an extract inside 3-dot notation:
+
+```bash
+...
+output of interest
+...
+```
+
+We'll be using shorthands where we can, to cut down typing:
+
+```bash
+ kubectl get deployments,pods
+```
+
+## post topic cleanup
+
+After finishing a topic, you should delete everything you created, here's a quick one-liner to do this:
+
+
+```bash
+$ kubectl delete all --all
+```
+
+Note: don't worry if it deletes the kubernetes service, that will just get recreated again.
 
 ## Disclaimer
 

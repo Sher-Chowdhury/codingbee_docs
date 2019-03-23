@@ -116,15 +116,18 @@ $ minikube service svc-nodeport-apache-webserver
 
 As you can see, the nodePort service object not only makes it easier for pod-2-pod communications, by setting up static dns names. But also makes pods externally accessible (without setting up port-forwarding).
 
+## Nodeport Services are kubecluster wide
 
+When you create a nodeport service, than all worker nodes in the kubecluster is listening on the Nodeport's port, even workers that doesn't have the pod in question. So when you access the port on a worker node, that request gets routed to the nodeport service first, then the node port service forwards your request onto the pod in question. 
 
-# Drawbacks to using nodeport
+## Drawbacks to using nodeport
 
 Nodeport is actually rarely used in production, and is mainly used for development purposes only. That's because:
 
 - url endpoint needs to explicitly end with ':{port nubmer}'. That looks ugly, doesn't scale well, and keep tracking of lots of pod numbers would be a nightmare. 
 - You'll end up using a lot of non-standard ports. 
-- all the port numbers requires extra work on the cloud platfrom. 
+- all the port numbers requires extra work on the cloud platfrom.
+- To set up HA, you need to create an ELB for each nodeport service. 
 
 
 That's why there are other types of service objects such as Ingress and ClusterIP service objects which we'll cover later. 

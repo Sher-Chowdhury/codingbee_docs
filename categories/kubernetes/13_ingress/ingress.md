@@ -4,20 +4,12 @@ Earlier we covered service objects which sets up networking between pods in the 
 
 The ideal solution would be to have your worker nodes only listening to standard ports, e.g. port 443 for https. That's possible by setting up Ingress objects. 
 
-Ingress ojects are used to make pods externally accessible. They make use of an internal nginx forward-proxy pod behind the scenes. This forward-proxy has it's own [ingress-nginx github repo](https://github.com/kubernetes/ingress-nginx). Ingress essentially acts as a gateway between the outside world and internals of your kube cluster, which is why the setup of Ingress is dependent on which cloud platform you use
+Ingress ojects are used to make pods externally accessible. Before you can start creating ingress objects, you first need to setup an [Ingress controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/). An ingress controllers provides Forward Proxy, 'Edge router' and 'Loadbalancing' features. One popular choice is [Traefik](https://github.com/containous/traefik). However in our case we'll use [ingress-nginx github repo](https://github.com/kubernetes/ingress-nginx), which essentially makes use of an internal nginx forward-proxy pod behind the scenes. 
+
+The way you set up the ingres-nginx controller depends on what underlying platfrom you're using, in our examples we'll be using minikube. 
 
 
-When you create an ingress-nginx object, you are effectively creating an 'Ingress-controller'. So what objects does an Ingress controller build? It basically builds
-
-
- - an nginx-revproxy pod that's specifically been optimised to work really well for routing external traffic to pods in the kubecluster. In what way is it optimised, here's a couple of examples:
-   - The nginx pod doesn't need a clusterIP service setup to a target group of pods, instead it can communicate/loadbalance to with these pods directly. I.e. the ngnix pod to some extent has clustIP service abilities builtin. 
-   - it can setup sticky sessions to pods, where needed. 
- - Cloud specific resources, e.g. if kubecluster is running on AWS, then it builds AWS ELBs. 
-
-
-
-## Setting up Ingress on Minikube
+## Setting up Ingress Controller on Minikube
 
 The [Nginx official Ingress](https://kubernetes.github.io/ingress-nginx/) Documentation covers how to set up the Ingress object. First go to the [Ingress deploy](https://kubernetes.github.io/ingress-nginx/deploy/) section. Then perform the [generic deployloyment](https://kubernetes.github.io/ingress-nginx/deploy/#prerequisite-generic-deployment-command), this part is irrespective of what cloud platform you're using:
 
